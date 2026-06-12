@@ -83,14 +83,14 @@ export default function ProductCard({ product, index = 0, onView }) {
           </>
         )}
       </div>
-      <div className="p-4 flex flex-col flex-1 gap-1">
-        <h3 className="text-lg font-display font-semibold text-white">
+      <div className="p-4">
+        <h3 className="text-lg font-display font-semibold text-white mb-1">
           {product.name}
         </h3>
-        <p className="text-sm text-gray-400 flex-1 line-clamp-2">
+        <p className="text-sm text-gray-400 line-clamp-2 mb-3">
           {truncate(product.description, 60)}
         </p>
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between">
           <span className="text-lg font-bold gold-text">
             {formatPrice(product.price)}
           </span>
