@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const STORAGE_KEY = 'safran-products';
+const POLL_INTERVAL = 30000;
 const ProductContext = createContext();
 
 function loadLocal() {
@@ -33,23 +34,30 @@ async function api(path, options = {}) {
 export function ProductProvider({ children }) {
   const [products, setProducts] = useState(loadLocal);
   const [loading, setLoading] = useState(false);
+  const syncRef = useRef(null);
 
-  const fetchProducts = async () => {
-    setLoading(true);
+  const fetchProducts = useCallback(async () => {
+    const data = await api('/products');
+    setProducts(data);
+    saveLocal(data);
+  }, []);
+
+  const syncProducts = useCallback(async () => {
     try {
       const data = await api('/products');
       setProducts(data);
       saveLocal(data);
-    } catch (err) {
-      console.warn('[API] Fetch failed, using local:', err.message);
-    } finally {
-      setLoading(false);
+    } catch {
+      // silent poll
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchProducts().then(() => setLoading(false)).catch(() => setLoading(false));
+    setLoading(true);
+    syncRef.current = setInterval(syncProducts, POLL_INTERVAL);
+    return () => clearInterval(syncRef.current);
+  }, [fetchProducts, syncProducts]);
 
   const addProduct = async (product) => {
     try {

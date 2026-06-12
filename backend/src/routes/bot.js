@@ -5,7 +5,7 @@ const TELEGRAM_API = 'https://api.telegram.org/bot';
 
 async function sendMessage(chatId, token, appUrl, firstName) {
   const text = [
-    `Assalomu alaykum, ${firstName}! SAFRAN botimizga xush kelibsiz! 🎉`,
+    `Assalomu alaykum, ${firstName}! botimizga xush kelibsiz! 🎉`,
     '',
     'Bu yerda siz:',
     '🍖 <b>Mangal</b> — eng mazali kabob va grill taomlar',
