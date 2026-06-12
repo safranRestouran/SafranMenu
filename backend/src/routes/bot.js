@@ -53,7 +53,7 @@ router.get('/setup', async (req, res) => {
     return res.status(400).json({ error: 'BOT_TOKEN muhit o\'zgaruvchisi topilmadi' });
   }
 
-  const webhookUrl = process.env.WEBHOOK_URL || `${req.protocol}://${req.get('host')}/api/bot`;
+  const webhookUrl = process.env.WEBHOOK_URL || `https://${req.get('host')}/api/bot`;
 
   const response = await fetch(`${TELEGRAM_API}${token}/setWebhook?url=${encodeURIComponent(webhookUrl)}`);
   const data = await response.json();
