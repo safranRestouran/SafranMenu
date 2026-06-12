@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
 import Splash from './pages/Splash';
 import Menu from './pages/Menu';
+import Landing from './pages/Landing';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
@@ -37,6 +38,7 @@ export default function App() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Splash />} />
+        <Route path="/landing" element={<Landing />} />
         <Route element={<MainLayout />}>
           <Route path="/menu" element={<Menu />} />
         </Route>

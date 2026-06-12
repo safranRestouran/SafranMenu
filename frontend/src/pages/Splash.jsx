@@ -26,7 +26,7 @@ export default function Splash() {
     if (progress >= 100) {
       setTimeout(() => {
         setShow(false);
-        setTimeout(() => navigate('/menu'), 500);
+        setTimeout(() => navigate('/landing'), 500);
       }, 400);
     }
   }, [progress, navigate]);
