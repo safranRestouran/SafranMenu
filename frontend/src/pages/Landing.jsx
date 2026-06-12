@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UtensilsCrossed, Phone, MapPin, Send, Instagram, ArrowRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -7,8 +8,8 @@ import { useLanguage } from '../context/LanguageContext';
 export default function Landing() {
   const { settings } = useSettings();
   const { lang: activeLang, setLang, t } = useLanguage();
+  const [showCallModal, setShowCallModal] = useState(false);
 
-  const phoneLink = `tel:${settings.phone}`;
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`;
   const botUsername = settings.telegram ? settings.telegram.replace('@', '') : 'safran_restaurant';
   const telegramBotLink = `https://t.me/${botUsername}_bot`;
@@ -24,7 +25,7 @@ export default function Landing() {
       : settings.description;
 
   const buttonClass = (isPrimary) => 
-    `w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 relative overflow-hidden group border ${
+    `w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 relative overflow-hidden group border cursor-pointer ${
       isPrimary 
         ? 'bg-gradient-to-r from-gold-500/20 via-amber-500/10 to-gold-500/20 border-gold-500/30 shadow-lg shadow-gold-500/5' 
         : 'bg-white/5 border-white/10'
@@ -105,7 +106,7 @@ export default function Landing() {
               <button
                 key={lang}
                 onClick={() => setLang(lang)}
-                className={`px-2.5 py-1 rounded transition-all duration-300 ${
+                className={`px-2.5 py-1 rounded transition-all duration-300 cursor-pointer ${
                   activeLang === lang 
                     ? 'bg-gold-500 text-dark-950 shadow shadow-gold-500/30' 
                     : 'bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10'
@@ -131,12 +132,12 @@ export default function Landing() {
             >
               <Instagram size={16} />
             </a>
-            <a 
-              href={phoneLink}
-              className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-gold-500 hover:border-gold-500/30 hover:bg-gold-500/10 transition-all active:scale-95"
+            <button 
+              onClick={() => setShowCallModal(true)}
+              className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-gold-500 hover:border-gold-500/30 hover:bg-gold-500/10 transition-all active:scale-95 cursor-pointer"
             >
               <Phone size={16} />
-            </a>
+            </button>
             <a 
               href={telegramChannelLink}
               target="_blank"
@@ -174,14 +175,14 @@ export default function Landing() {
             </Link>
           </motion.div>
 
-          {/* 2. Phone Link */}
+          {/* 2. Phone Button (Opens Call Modal) */}
           <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.5, type: 'spring', stiffness: 100 }}
           >
-            <a 
-              href={phoneLink}
+            <button 
+              onClick={() => setShowCallModal(true)}
               className={buttonClass(false)}
             >
               <div className="flex items-center gap-4">
@@ -195,7 +196,7 @@ export default function Landing() {
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
                 <ArrowRight size={18} />
               </div>
-            </a>
+            </button>
           </motion.div>
 
           {/* 3. Location Link */}
@@ -288,6 +289,12 @@ export default function Landing() {
           <div className="inline-block px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm shadow-inner">
             <p className="text-xs font-medium tracking-wide text-gray-400">
               <span className="text-gray-300 font-semibold">{settings.phone}</span>
+              {settings.phone2 && (
+                <>
+                  <span className="mx-2 text-gray-600">/</span>
+                  <span className="text-gray-300 font-semibold">{settings.phone2}</span>
+                </>
+              )}
               <span className="mx-2.5 text-gray-600">•</span>
               <span>{t('landing_daily')} 10:00 - 23:00</span>
             </p>
@@ -295,6 +302,81 @@ export default function Landing() {
         </motion.div>
 
       </div>
+
+      {/* Call Modal Sheet */}
+      <AnimatePresence>
+        {showCallModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCallModal(false)}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            />
+            {/* Slide up sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto bg-dark-950/95 backdrop-blur-xl border-t border-gold-500/25 rounded-t-[2.5rem] p-6 shadow-2xl text-white"
+            >
+              {/* Handle bar for premium native feel */}
+              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+
+              <h3 className="text-center font-display font-semibold text-lg text-gray-200 mb-6">
+                {t('call_modal_title')}
+              </h3>
+
+              <div className="space-y-3 mb-6">
+                {/* Number 1 */}
+                <a
+                  href={`tel:${settings.phone}`}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-gold-500/15 hover:border-gold-500/30 transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-gold-500/10 border border-gold-500/20 flex items-center justify-center text-gold-500 group-hover:bg-gold-500/20">
+                    <Phone size={18} />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs text-gray-400 font-medium">SAFRAN 1</span>
+                    <span className="font-bold text-base text-gray-100 group-hover:text-white">
+                      {settings.phone}
+                    </span>
+                  </div>
+                </a>
+
+                {/* Number 2 */}
+                {settings.phone2 && (
+                  <a
+                    href={`tel:${settings.phone2}`}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-gold-500/15 hover:border-gold-500/30 transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gold-500/10 border border-gold-500/20 flex items-center justify-center text-gold-500 group-hover:bg-gold-500/20">
+                      <Phone size={18} />
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs text-gray-400 font-medium">SAFRAN 2</span>
+                      <span className="font-bold text-base text-gray-100 group-hover:text-white">
+                        {settings.phone2}
+                      </span>
+                    </div>
+                  </a>
+                )}
+              </div>
+
+              {/* Cancel Button */}
+              <button
+                onClick={() => setShowCallModal(false)}
+                className="w-full py-3.5 rounded-2xl bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 font-semibold text-sm transition-all"
+              >
+                {t('cancel')}
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

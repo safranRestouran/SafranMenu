@@ -12,6 +12,8 @@ const translations = {
     landing_instagram: "Instagram Profil",
     landing_daily: "Har kuni",
     landing_description: "Milliy Taomlar Restorani",
+    call_modal_title: "Telefon qilish uchun raqamni tanlang",
+    cancel: "Bekor qilish",
 
     // Menu Page
     menu_title: "Bizning Menyu",
@@ -45,6 +47,8 @@ const translations = {
     landing_instagram: "Профиль Instagram",
     landing_daily: "Ежедневно",
     landing_description: "Ресторан национальной кухни",
+    call_modal_title: "Выберите номер для звонка",
+    cancel: "Отмена",
 
     // Menu Page
     menu_title: "Наше меню",
@@ -78,6 +82,8 @@ const translations = {
     landing_instagram: "Instagram Profile",
     landing_daily: "Daily",
     landing_description: "National Cuisine Restaurant",
+    call_modal_title: "Choose a number to call",
+    cancel: "Cancel",
 
     // Menu Page
     menu_title: "Our Menu",

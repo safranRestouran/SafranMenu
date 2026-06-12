@@ -5,14 +5,15 @@ const SETTINGS_KEY = 'safran-settings';
 const DEFAULT_SETTINGS = {
   name: 'SAFRAN',
   description: 'Milliy Taomlar Restorani',
-  phone: '+998901234567',
-  telegram: 'safran_restaurant',
+  phone: '+998973624755',
+  phone2: '+998886001700',
+  telegram: 'safran_menu_bot',
   address: 'Toshkent sh., Amir Temur ko\'chasi, 100',
-  logo: '/logo.svg',
+  logo: '/logo.png',
   favicon: '/favicon.svg',
   social: {
-    instagram: '',
-    telegram: 'https://t.me/safran_restaurant',
+    instagram: 'https://instagram.com/safran_restaurant',
+    telegram: 'https://t.me/safran_menu_bot',
   },
 };
 
@@ -21,7 +22,19 @@ const SettingsContext = createContext();
 export function SettingsProvider({ children }) {
   const [settings, setSettings] = useState(() => {
     const stored = localStorage.getItem(SETTINGS_KEY);
-    return stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.phone === '+998901234567') {
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(DEFAULT_SETTINGS));
+          return DEFAULT_SETTINGS;
+        }
+        return { ...DEFAULT_SETTINGS, ...parsed };
+      } catch {
+        return DEFAULT_SETTINGS;
+      }
+    }
+    return DEFAULT_SETTINGS;
   });
 
   useEffect(() => {
