@@ -16,12 +16,19 @@ import { useTheme } from './context/ThemeContext';
 
 export default function App() {
   const location = useLocation();
-  const { isReady } = useTelegram();
-  const { theme } = useTheme();
+  const { isReady, isTelegram, tgTheme } = useTelegram();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    if (isTelegram) {
+      const prefersDark = tgTheme.bg && !tgTheme.bg.startsWith('#f');
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+  }, [isTelegram, tgTheme, setTheme]);
 
   if (!isReady) return null;
 
