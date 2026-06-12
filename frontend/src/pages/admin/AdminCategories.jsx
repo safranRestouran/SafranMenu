@@ -10,18 +10,20 @@ export default function AdminCategories() {
   const { settings, updateSettings } = useSettings();
   const { products, updateProduct } = useProducts();
   const categories = settings.categories || [];
+  const sortedCategories = [...categories].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
   
   // States
   const [newId, setNewId] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [newOrder, setNewOrder] = useState('0');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
   // Edit states
   const [editingCat, setEditingCat] = useState(null);
-  const [editForm, setEditForm] = useState({ id: '', label: '', image: '' });
+  const [editForm, setEditForm] = useState({ id: '', label: '', image: '', order: 0 });
   const [editUploading, setEditUploading] = useState(false);
   const [editDragOver, setEditDragOver] = useState(false);
 
@@ -48,7 +50,8 @@ export default function AdminCategories() {
     const newCategory = {
       id: idClean,
       label: labelClean,
-      image: newImage || ''
+      image: newImage || '',
+      order: parseInt(newOrder, 10) || 0
     };
 
     const updated = [...categories, newCategory];
@@ -57,6 +60,7 @@ export default function AdminCategories() {
     setNewId('');
     setNewLabel('');
     setNewImage('');
+    setNewOrder('0');
   };
 
   // Delete Category Handler
@@ -81,70 +85,40 @@ export default function AdminCategories() {
   // Open Edit Modal
   const openEdit = (cat) => {
     setEditingCat(cat);
-    setEditForm({ ...cat });
+    setEditForm({
+      id: cat.id,
+      label: cat.label,
+      image: cat.image || '',
+      order: cat.order !== undefined ? Number(cat.order) : 0
+    });
   };
 
   // Save Edit Handler
   const handleSaveEdit = async (e) => {
     e.preventDefault();
-    const newIdClean = editForm.id.trim().toLowerCase().replace(/\s+/g, '-');
     const labelClean = editForm.label.trim();
 
-    if (!newIdClean || !labelClean) {
-      toast.error('Kategoriya kodi va nomi to\'ldirilishi shart');
+    if (!labelClean) {
+      toast.error('Kategoriya nomi bo\'sh bo\'lmasligi kerak');
       return;
-    }
-
-    const oldId = editingCat.id;
-    const isIdChanged = newIdClean !== oldId;
-
-    if (isIdChanged) {
-      // Check if new ID already exists in other categories
-      if (categories.some(c => c.id === newIdClean && c.id !== oldId)) {
-        toast.error('Bu kodli kategoriya allaqachon mavjud');
-        return;
-      }
     }
 
     setSaving(true);
     try {
-      // If ID changed, migrate products
-      if (isIdChanged) {
-        const catProducts = products.filter(p => p.category === oldId);
-        if (catProducts.length > 0) {
-          const proceed = window.confirm(
-            `Kategoriya kodi "${oldId}" dan "${newIdClean}" ga o'zgarmoqda.\n` +
-            `Ushbu kategoriyaga tegishli ${catProducts.length} ta mahsulot avtomatik tarzda yangi kodga o'tkaziladi. Davom etamizmi?`
-          );
-          if (!proceed) {
-            setSaving(false);
-            return;
-          }
-
-          toast.loading('Mahsulotlar yangilanmoqda...', { id: 'migration' });
-          for (const p of catProducts) {
-            await updateProduct(p.id, {
-              name: p.name,
-              description: p.description || '',
-              price: p.price.toString(),
-              category: newIdClean,
-              images: p.images || []
-            });
-          }
-          toast.success('Barcha mahsulotlar yangi kategoriyaga o\'tkazildi', { id: 'migration' });
-        }
-      }
-
-      // Now save category updates
       const updated = categories.map(c => 
-        c.id === oldId 
-          ? { id: newIdClean, label: labelClean, image: editForm.image } 
+        c.id === editingCat.id 
+          ? { 
+              id: c.id, 
+              label: labelClean, 
+              image: editForm.image, 
+              order: parseInt(editForm.order, 10) || 0 
+            } 
           : c
       );
-      await saveCategories(updated, 'Kategoriya muvaffaqiyatli yangilandi');
+      await saveCategories(updated, 'Kategoriya yangilandi');
       setEditingCat(null);
     } catch (err) {
-      toast.error('Tahrirlashda xatolik yuz berdi: ' + err.message, { id: 'migration' });
+      toast.error('Saqlashda xatolik yuz berdi');
     } finally {
       setSaving(false);
     }
@@ -210,17 +184,7 @@ export default function AdminCategories() {
     }
   };
 
-  const moveCategory = async (index, direction) => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= categories.length) return;
 
-    const updated = [...categories];
-    const temp = updated[index];
-    updated[index] = updated[newIndex];
-    updated[newIndex] = temp;
-
-    await saveCategories(updated, "Kategoriyalar tartibi o'zgartirildi");
-  };
 
   // Stats calculation
   const totalCats = categories.length;
@@ -305,6 +269,22 @@ export default function AdminCategories() {
               />
             </div>
 
+            <div>
+              <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">
+                Tartib Raqami
+              </label>
+              <input
+                type="number"
+                value={newOrder}
+                onChange={e => setNewOrder(e.target.value)}
+                placeholder="masalan: 1"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none text-sm"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">
+                Kichikroq sonlar ro'yxatda oldinroq tushadi. Masalan: 0 eng birinchi, 1 undan keyin.
+              </p>
+            </div>
+
             {/* Category Image Upload */}
             <div>
               <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Rasm (Ixtiyoriy)</label>
@@ -376,14 +356,14 @@ export default function AdminCategories() {
             Mavjud kategoriyalar ({categories.length})
           </h3>
 
-          {categories.length === 0 ? (
+          {sortedCategories.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <FolderOpen size={40} className="mx-auto mb-2 opacity-30" />
               <p>Kategoriyalar mavjud emas</p>
             </div>
           ) : (
             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-              {categories.map((c, idx) => {
+              {sortedCategories.map((c, idx) => {
                 const productCount = products.filter(p => p.category === c.id).length;
                 return (
                   <motion.div
@@ -402,34 +382,17 @@ export default function AdminCategories() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{c.label}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-white truncate">{c.label}</p>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-gold-500/10 text-gold-500 font-mono font-bold" title="Tartib raqami">
+                            #{c.order || 0}
+                          </span>
+                        </div>
                         <p className="text-xs text-gray-500 font-mono mt-0.5">ID: {c.id}</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-                      {/* Move Up/Down Controls */}
-                      <div className="flex flex-col -space-y-0.5">
-                        <button
-                          type="button"
-                          onClick={() => moveCategory(idx, 'up')}
-                          disabled={idx === 0 || saving}
-                          className="p-0.5 rounded hover:bg-white/5 text-gray-500 hover:text-gold-500 disabled:opacity-10 disabled:pointer-events-none transition-colors"
-                          title="Tepaga siljitish"
-                        >
-                          <ChevronUp size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveCategory(idx, 'down')}
-                          disabled={idx === categories.length - 1 || saving}
-                          className="p-0.5 rounded hover:bg-white/5 text-gray-500 hover:text-gold-500 disabled:opacity-10 disabled:pointer-events-none transition-colors"
-                          title="Pastga siljitish"
-                        >
-                          <ChevronDown size={14} />
-                        </button>
-                      </div>
-
+                    <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                       <span className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-gray-400 border border-white/5">
                         {productCount} ta mahsulot
                       </span>
@@ -471,7 +434,7 @@ export default function AdminCategories() {
           Kategoriyalar Tahlili & Moliyaviy Ko'rsatkichlar
         </h3>
         
-        {categories.length === 0 ? (
+        {sortedCategories.length === 0 ? (
           <p className="text-gray-500 text-sm text-center py-6">Tahlil qilish uchun kategoriyalar mavjud emas</p>
         ) : (
           <div className="overflow-x-auto">
@@ -486,7 +449,7 @@ export default function AdminCategories() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-sm text-gray-300">
-                {categories.map(c => {
+                {sortedCategories.map(c => {
                   const catProducts = products.filter(p => p.category === c.id);
                   const count = catProducts.length;
                   const percent = products.length > 0 ? Math.round((count / products.length) * 100) : 0;
@@ -561,18 +524,14 @@ export default function AdminCategories() {
                 </div>
 
                 <form onSubmit={handleSaveEdit} className="space-y-4">
-                  <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Kategoriya Kodi (ID)</label>
+                   <div>
+                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Kategoriya Kodi (ID) (O'zgartirib bo'lmaydi)</label>
                     <input
                       type="text"
                       value={editForm.id}
-                      onChange={e => setEditForm(f => ({ ...f, id: e.target.value }))}
-                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none text-sm"
-                      placeholder="kategoriya-kodi"
+                      disabled
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-500 text-sm focus:outline-none"
                     />
-                    <p className="text-[10px] text-amber-500 mt-1">
-                      Kodni o'zgartirsangiz, ushbu kategoriyadagi barcha mahsulotlar ham avtomatik ravishda yangi kodga o'tkaziladi.
-                    </p>
                   </div>
 
                   <div>
@@ -584,6 +543,20 @@ export default function AdminCategories() {
                       className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none text-sm"
                       placeholder="Kategoriya nomi"
                     />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Tartib Raqami</label>
+                    <input
+                      type="number"
+                      value={editForm.order}
+                      onChange={e => setEditForm(f => ({ ...f, order: e.target.value }))}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none text-sm"
+                      placeholder="masalan: 1"
+                    />
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Kichikroq sonlar ro'yxatda oldinroq tushadi. Masalan: 0 eng birinchi, 1 undan keyin.
+                    </p>
                   </div>
 
                   {/* Image Edit Section */}

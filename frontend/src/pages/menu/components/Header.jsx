@@ -12,7 +12,7 @@ export default function Header() {
     <>
       <header className="fixed top-0 left-0 right-0 z-40 glass border-b border-gold-500/10">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/menu" className="flex items-center gap-3">
+          <Link to="/landing" className="flex items-center gap-3">
             <img src={settings.logo} alt="SAFRAN" className="w-8 h-8" />
             <div>
               <h1 className="text-lg font-display font-bold gold-text leading-none">{settings.name}</h1>

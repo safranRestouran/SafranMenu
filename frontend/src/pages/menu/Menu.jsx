@@ -14,7 +14,8 @@ export default function Menu() {
   const { products, loading } = useProducts();
   const { settings } = useSettings();
   const { t } = useLanguage();
-  const categories = settings.categories || [];
+  const categoriesRaw = settings.categories || [];
+  const categories = [...categoriesRaw].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
