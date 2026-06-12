@@ -38,10 +38,8 @@ export function ProductProvider({ children }) {
     setLoading(true);
     try {
       const data = await api('/products');
-      if (data?.length) {
-        setProducts(data);
-        saveLocal(data);
-      }
+      setProducts(data);
+      saveLocal(data);
     } catch (err) {
       console.warn('[API] Fetch failed, using local:', err.message);
     } finally {
