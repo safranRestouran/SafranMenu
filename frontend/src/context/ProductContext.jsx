@@ -1,13 +1,9 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { supabase, isConfigured } from '../utils/supabase';
+import { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const STORAGE_KEY = 'safran-products';
 const ProductContext = createContext();
-
-function generateId() {
-  return 'p_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-}
 
 function loadLocal() {
   try {
@@ -22,109 +18,94 @@ function saveLocal(products) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
 }
 
+async function api(path, options = {}) {
+  const res = await fetch(`${API_URL}/api${path}`, {
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Server xatosi' }));
+    throw new Error(err.error || 'Server xatosi');
+  }
+  return res.json();
+}
+
 export function ProductProvider({ children }) {
   const [products, setProducts] = useState(loadLocal);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isConfigured) return;
+  const fetchProducts = async () => {
     setLoading(true);
-    supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data?.length) {
-          setProducts(data);
-          saveLocal(data);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  const syncToSupabase = useCallback(async (action) => {
-    if (!isConfigured) return null;
     try {
-      return await action(supabase);
+      const data = await api('/products');
+      if (data?.length) {
+        setProducts(data);
+        saveLocal(data);
+      }
     } catch (err) {
-      console.warn('[DB] Supabase sync failed:', err.message);
-      return null;
+      console.warn('[API] Fetch failed, using local:', err.message);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   const addProduct = async (product) => {
-    const id = generateId();
-    const now = new Date().toISOString();
-    const newProduct = {
-      id,
-      name: product.name,
-      description: product.description || '',
-      price: Number(product.price),
-      category: product.category,
-      images: product.images || [],
-      created_at: now,
-      updated_at: now,
-    };
-
-    const updated = [newProduct, ...products];
-    setProducts(updated);
-    saveLocal(updated);
-    toast.success('Mahsulot qo\'shildi');
-
-    syncToSupabase((db) =>
-      db.from('products').insert([{
-        id, name: newProduct.name, description: newProduct.description,
-        price: newProduct.price, category: newProduct.category,
-        images: newProduct.images, created_at: now, updated_at: now,
-      }])
-    );
-
-    return newProduct;
+    try {
+      const data = await api('/products', {
+        method: 'POST',
+        body: JSON.stringify(product),
+      });
+      const updated = [data, ...products];
+      setProducts(updated);
+      saveLocal(updated);
+      toast.success('Mahsulot qo\'shildi');
+      return data;
+    } catch (err) {
+      toast.error(err.message);
+      throw err;
+    }
   };
 
   const updateProduct = async (id, updates) => {
-    const now = new Date().toISOString();
-    const updated = products.map(p =>
-      p.id === id
-        ? { ...p, ...updates, price: Number(updates.price), updated_at: now }
-        : p
-    );
-    setProducts(updated);
-    saveLocal(updated);
-    toast.success('Mahsulot yangilandi');
-
-    syncToSupabase((db) =>
-      db.from('products').update({
-        name: updates.name, description: updates.description,
-        price: Number(updates.price), category: updates.category,
-        images: updates.images, updated_at: now,
-      }).eq('id', id)
-    );
-
-    return updated.find(p => p.id === id);
+    try {
+      const data = await api(`/products/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+      const updated = products.map(p => (p.id === id ? data : p));
+      setProducts(updated);
+      saveLocal(updated);
+      toast.success('Mahsulot yangilandi');
+      return data;
+    } catch (err) {
+      toast.error(err.message);
+      throw err;
+    }
   };
 
   const deleteProduct = async (id) => {
     const product = products.find(p => p.id === id);
-
-    if (product?.images?.length) {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      fetch(`${apiUrl}/api/upload/delete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ urls: product.images }),
-      }).catch(() => {});
+    try {
+      if (product?.images?.length) {
+        fetch(`${API_URL}/api/upload/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls: product.images }),
+        }).catch(() => {});
+      }
+      await api(`/products/${id}`, { method: 'DELETE' });
+      const updated = products.filter(p => p.id !== id);
+      setProducts(updated);
+      saveLocal(updated);
+      toast.success('Mahsulot o\'chirildi');
+    } catch (err) {
+      toast.error(err.message);
+      throw err;
     }
-
-    const updated = products.filter(p => p.id !== id);
-    setProducts(updated);
-    saveLocal(updated);
-    toast.success('Mahsulot o\'chirildi');
-
-    syncToSupabase((db) =>
-      db.from('products').delete().eq('id', id)
-    );
   };
 
   const getProductsByCategory = (category) => {
@@ -148,7 +129,7 @@ export function ProductProvider({ children }) {
 
   return (
     <ProductContext.Provider value={{
-      products, loading, fetchProducts: () => {},
+      products, loading, fetchProducts,
       addProduct, updateProduct, deleteProduct,
       getProductsByCategory, getStats,
     }}>
