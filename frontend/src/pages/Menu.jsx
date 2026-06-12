@@ -41,7 +41,7 @@ export default function Menu() {
           <p className="text-gray-400 text-sm">Kategoriyani tanlang</p>
         </motion.div>
 
-        <div className="grid grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 md:gap-6">
           {CATEGORIES.map((cat, i) => (
             <motion.button
               key={cat.id}

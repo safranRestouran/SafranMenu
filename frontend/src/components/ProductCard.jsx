@@ -20,7 +20,7 @@ export default function ProductCard({ product, index = 0, onView }) {
       className="glass-card group cursor-pointer overflow-hidden"
       onClick={() => onView?.(product)}
     >
-      <div className="relative h-36 overflow-hidden bg-dark-950/50">
+      <div className="relative h-42 overflow-hidden bg-dark-950/50">
         <AnimatePresence mode="wait">
           <motion.img
             key={imgIndex}
