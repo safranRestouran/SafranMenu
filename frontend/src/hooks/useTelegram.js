@@ -100,5 +100,4 @@ function applyTheme(webapp) {
   root.style.setProperty('--tg-button', params.button_color || '#D4AF37');
   root.style.setProperty('--tg-button-text', params.button_text_color || '#0f172a');
   root.style.setProperty('--tg-secondary-bg', params.secondary_bg_color || '#1e293b');
-  document.documentElement.classList.toggle('dark', webapp.colorScheme === 'dark');
 }

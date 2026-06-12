@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useTelegram } from './hooks/useTelegram';
@@ -16,19 +16,20 @@ import { useTheme } from './context/ThemeContext';
 
 export default function App() {
   const location = useLocation();
-  const { isReady, isTelegram, tgTheme } = useTelegram();
-  const { theme, setTheme } = useTheme();
+  const { isReady, isTelegram } = useTelegram();
+  const { setTheme } = useTheme();
+  const initial = useRef(true);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
-
-  useEffect(() => {
-    if (isTelegram) {
-      const prefersDark = tgTheme.bg && !tgTheme.bg.startsWith('#f');
-      setTheme(prefersDark ? 'dark' : 'light');
+    if (initial.current && isTelegram) {
+      const saved = localStorage.getItem('safran-theme');
+      if (!saved) {
+        const tg = window.Telegram?.WebApp;
+        setTheme(tg?.colorScheme === 'dark' ? 'dark' : 'light');
+      }
+      initial.current = false;
     }
-  }, [isTelegram, tgTheme, setTheme]);
+  }, [isTelegram, setTheme]);
 
   if (!isReady) return null;
 
