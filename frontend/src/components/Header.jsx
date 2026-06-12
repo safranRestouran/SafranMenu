@@ -1,18 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Moon, Sun, Menu, Phone, Shield } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { Moon, Sun, Phone, Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useSettings } from '../context/SettingsContext';
-import CartDrawer from './CartDrawer';
 
 export default function Header() {
-  const [cartOpen, setCartOpen] = useState(false);
-  const { getItemCount } = useCart();
   const { theme, toggleTheme } = useTheme();
   const { settings } = useSettings();
-  const itemCount = getItemCount();
 
   return (
     <>
@@ -46,27 +40,9 @@ export default function Header() {
             >
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setCartOpen(true)}
-              className="relative p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-gold-500 transition-colors"
-            >
-              <ShoppingBag size={18} />
-              {itemCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full gold-gradient text-dark-950 text-[10px] font-bold flex items-center justify-center"
-                >
-                  {itemCount}
-                </motion.span>
-              )}
-            </motion.button>
           </div>
         </div>
       </header>
-      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }

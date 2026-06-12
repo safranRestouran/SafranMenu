@@ -14,7 +14,7 @@ export function useTelegram() {
         const webapp = window.Telegram.WebApp;
         webapp.ready();
         webapp.expand();
-        webapp.enableClosingConfirmation();
+        try { webapp.enableClosingConfirmation?.(); } catch {} // 6.0+
         setTg(webapp);
       }
     } catch { /* not in telegram */ }
