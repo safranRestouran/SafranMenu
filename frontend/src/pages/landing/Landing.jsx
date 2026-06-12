@@ -158,7 +158,7 @@ export default function Landing() {
             transition={{ delay: 0.4, type: 'spring', stiffness: 100 }}
           >
             <a 
-              href="https://safranmenu.netlify.app/landing"
+              href="https://safranmenu.netlify.app/menu"
               className={buttonClass(true)}
             >
               <div className="flex items-center gap-4">
