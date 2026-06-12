@@ -140,10 +140,11 @@ export default function ProductModal({ product, onClose }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { addToCart(product); onClose(); }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full gold-gradient text-dark-950 font-semibold hover:shadow-lg hover:shadow-gold-500/30 transition-shadow"
+                  className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full gold-gradient text-dark-950 font-semibold text-sm sm:text-base hover:shadow-lg hover:shadow-gold-500/30 transition-shadow"
                 >
-                  <ShoppingCart size={18} />
-                  Savatga qo'shish
+                  <ShoppingCart size={16} />
+                  <span className="hidden sm:inline">Savatga qo'shish</span>
+                  <span className="sm:hidden">Savatga</span>
                 </motion.button>
               </div>
             </div>

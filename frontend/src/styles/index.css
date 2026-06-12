@@ -98,3 +98,10 @@
     text-wrap: balance;
   }
 }
+
+@media (max-width: 480px) {
+  .btn-responsive {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+  }
+}

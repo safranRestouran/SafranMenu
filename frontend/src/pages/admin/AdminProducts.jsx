@@ -19,6 +19,7 @@ export default function AdminProducts() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const fileRef = useRef();
 
   const filtered = products.filter(p =>
@@ -74,10 +75,12 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     if (!form.name || !form.price) {
       toast.error('Nom va narx majburiy');
       return;
     }
+    setSubmitting(true);
     try {
       if (editing) {
         await updateProduct(editing.id, form);
@@ -88,6 +91,7 @@ export default function AdminProducts() {
       setForm(EMPTY_FORM);
       setEditing(null);
     } catch { /* handled in context */ }
+    finally { setSubmitting(false); }
   };
 
   const handleDelete = async (product) => {
@@ -110,10 +114,11 @@ export default function AdminProducts() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl gold-gradient text-dark-950 font-medium text-sm"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl gold-gradient text-dark-950 font-medium text-xs sm:text-sm"
         >
-          <Plus size={18} />
-          Yangi mahsulot
+          <Plus size={16} />
+          <span className="hidden sm:inline">Yangi mahsulot</span>
+          <span className="sm:hidden">Qo'shish</span>
         </motion.button>
       </div>
 
@@ -124,7 +129,7 @@ export default function AdminProducts() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Mahsulot qidirish..."
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none transition-colors"
+          className="w-full pl-9 pr-4 py-2 sm:py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm sm:text-base focus:border-gold-500/50 focus:outline-none transition-colors"
         />
       </div>
 
@@ -299,13 +304,13 @@ export default function AdminProducts() {
                       <div className="flex flex-wrap gap-2 mt-3">
                         {form.images.map((url, i) => (
                           <div key={i} className="relative group">
-                            <img src={url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                            <img src={url} alt="" className="w-14 sm:w-16 h-14 sm:h-16 rounded-lg object-cover" />
                             <button
                               type="button"
                               onClick={() => removeImage(i)}
                               className="absolute -top-1.5 -right-1.5 p-0.5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <X size={12} />
+                              <X size={11} />
                             </button>
                           </div>
                         ))}
@@ -313,11 +318,11 @@ export default function AdminProducts() {
                     )}
                   </div>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-2 sm:gap-3 pt-2">
                     <button
                       type="button"
                       onClick={() => setShowForm(false)}
-                      className="flex-1 py-2.5 rounded-xl border border-white/10 text-gray-300 text-sm hover:bg-white/5 transition-colors"
+                      className="flex-1 py-2 sm:py-2.5 rounded-xl border border-white/10 text-gray-300 text-xs sm:text-sm hover:bg-white/5 transition-colors"
                     >
                       Bekor qilish
                     </button>
@@ -325,10 +330,10 @@ export default function AdminProducts() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
-                      disabled={uploading}
-                      className="flex-1 py-2.5 rounded-xl gold-gradient text-dark-950 font-semibold text-sm disabled:opacity-50"
+                      disabled={uploading || submitting}
+                      className="flex-1 py-2 sm:py-2.5 rounded-xl gold-gradient text-dark-950 font-semibold text-xs sm:text-sm disabled:opacity-50"
                     >
-                      {uploading ? 'Yuklanmoqda...' : editing ? 'Saqlash' : 'Qo\'shish'}
+                      {uploading ? 'Yuklanmoqda...' : submitting ? 'Saqlanmoqda...' : editing ? 'Saqlash' : 'Qo\'shish'}
                     </motion.button>
                   </div>
                 </form>
