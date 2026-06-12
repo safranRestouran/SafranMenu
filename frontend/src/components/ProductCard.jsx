@@ -17,10 +17,10 @@ export default function ProductCard({ product, index = 0, onView }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       whileHover={{ y: -6 }}
-      className="glass-card group cursor-pointer overflow-hidden"
+      className="glass-card group cursor-pointer overflow-hidden flex flex-col"
       onClick={() => onView?.(product)}
     >
-      <div className="relative h-42 overflow-hidden bg-dark-950/50">
+      <div className="relative h-42 flex-shrink-0 overflow-hidden bg-dark-950/50">
         <AnimatePresence mode="wait">
           <motion.img
             key={imgIndex}
@@ -83,14 +83,14 @@ export default function ProductCard({ product, index = 0, onView }) {
           </>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-display font-semibold text-white mb-1">
+      <div className="p-4 flex flex-col flex-1 gap-1">
+        <h3 className="text-lg font-display font-semibold text-white">
           {product.name}
         </h3>
-        <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+        <p className="text-sm text-gray-400 flex-1 line-clamp-2">
           {truncate(product.description, 60)}
         </p>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-1">
           <span className="text-lg font-bold gold-text">
             {formatPrice(product.price)}
           </span>
