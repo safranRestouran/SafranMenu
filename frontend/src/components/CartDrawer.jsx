@@ -1,10 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { formatPrice, getImageUrl } from '../utils/helpers';
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, clearCart, getCartTotal, getItemCount } = useCart();
+  const { t } = useLanguage();
 
   return (
     <AnimatePresence>
@@ -28,7 +30,7 @@ export default function CartDrawer({ isOpen, onClose }) {
               <div className="flex items-center gap-3">
                 <ShoppingBag size={22} className="text-gold-500" />
                 <h2 className="text-lg font-display font-semibold text-white">
-                  Savat ({getItemCount()})
+                  {t('cart_title')} ({getItemCount()})
                 </h2>
               </div>
               <button onClick={onClose} className="p-2 rounded-full hover:bg-white/5 text-gray-400">
@@ -39,7 +41,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             {cart.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-500 gap-4">
                 <ShoppingBag size={48} className="text-gold-500/30" />
-                <p className="text-lg">Savat bo'sh</p>
+                <p className="text-lg">{t('cart_empty')}</p>
               </div>
             ) : (
               <>
@@ -92,7 +94,7 @@ export default function CartDrawer({ isOpen, onClose }) {
 
                 <div className="p-4 border-t border-white/10 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Jami:</span>
+                    <span className="text-gray-400">{t('cart_total')}:</span>
                     <span className="text-2xl font-bold gold-text">{formatPrice(getCartTotal())}</span>
                   </div>
                   <div className="flex gap-2">
@@ -100,13 +102,13 @@ export default function CartDrawer({ isOpen, onClose }) {
                       onClick={clearCart}
                       className="flex-1 py-2.5 rounded-xl border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/10 transition-colors"
                     >
-                      Tozalash
+                      {t('cart_clear')}
                     </button>
                     <button
                       onClick={onClose}
                       className="flex-1 py-2.5 rounded-xl gold-gradient text-dark-950 text-sm font-semibold hover:shadow-lg hover:shadow-gold-500/25 transition-shadow"
                     >
-                      Yopish
+                      {t('cart_close')}
                     </button>
                   </div>
                 </div>

@@ -1,12 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UtensilsCrossed, Phone, MapPin, Send, Instagram, ArrowRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Landing() {
   const { settings } = useSettings();
-  const [activeLang, setActiveLang] = useState('UZ');
+  const { lang: activeLang, setLang, t } = useLanguage();
 
   const phoneLink = `tel:${settings.phone}`;
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`;
@@ -16,6 +16,12 @@ export default function Landing() {
   const telegramChannelLink = settings.social?.telegram || `https://t.me/${botUsername}`;
 
   const languages = ['UZ', 'RU', 'EN'];
+
+  // Dynamically translate the default description if the user hasn't customized it
+  const displayDescription = 
+    !settings.description || settings.description === 'Milliy Taomlar Restorani'
+      ? t('landing_description')
+      : settings.description;
 
   const buttonClass = (isPrimary) => 
     `w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 relative overflow-hidden group border ${
@@ -85,7 +91,7 @@ export default function Landing() {
             transition={{ delay: 0.3 }}
             className="text-sm text-gray-300 font-medium tracking-wide mt-1"
           >
-            {settings.description || 'Milliy Taomlar Restorani'}
+            {displayDescription}
           </motion.p>
 
           {/* Language badge selectors (interactive) */}
@@ -98,7 +104,7 @@ export default function Landing() {
             {languages.map((lang) => (
               <button
                 key={lang}
-                onClick={() => setActiveLang(lang)}
+                onClick={() => setLang(lang)}
                 className={`px-2.5 py-1 rounded transition-all duration-300 ${
                   activeLang === lang 
                     ? 'bg-gold-500 text-dark-950 shadow shadow-gold-500/30' 
@@ -159,7 +165,7 @@ export default function Landing() {
                   <UtensilsCrossed size={20} />
                 </div>
                 <span className="font-semibold text-base tracking-wide text-left text-gray-100 group-hover:text-white transition-colors">
-                  Menyuni Ko'rish
+                  {t('landing_menu')}
                 </span>
               </div>
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
@@ -183,7 +189,7 @@ export default function Landing() {
                   <Phone size={20} />
                 </div>
                 <span className="font-semibold text-base tracking-wide text-left text-gray-100 group-hover:text-white transition-colors">
-                  Telefon Qilish
+                  {t('landing_call')}
                 </span>
               </div>
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
@@ -209,7 +215,7 @@ export default function Landing() {
                   <MapPin size={20} />
                 </div>
                 <span className="font-semibold text-base tracking-wide text-left text-gray-100 group-hover:text-white transition-colors">
-                  Joylashuv (Manzil)
+                  {t('landing_location')}
                 </span>
               </div>
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
@@ -235,7 +241,7 @@ export default function Landing() {
                   <Send size={20} />
                 </div>
                 <span className="font-semibold text-base tracking-wide text-left text-gray-100 group-hover:text-white transition-colors">
-                  Telegram Bot
+                  {t('landing_bot')}
                 </span>
               </div>
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
@@ -261,7 +267,7 @@ export default function Landing() {
                   <Instagram size={20} />
                 </div>
                 <span className="font-semibold text-base tracking-wide text-left text-gray-100 group-hover:text-white transition-colors">
-                  Instagram Profil
+                  {t('landing_instagram')}
                 </span>
               </div>
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
@@ -283,7 +289,7 @@ export default function Landing() {
             <p className="text-xs font-medium tracking-wide text-gray-400">
               <span className="text-gray-300 font-semibold">{settings.phone}</span>
               <span className="mx-2.5 text-gray-600">•</span>
-              <span>Har kuni 10:00 - 23:00</span>
+              <span>{t('landing_daily')} 10:00 - 23:00</span>
             </p>
           </div>
         </motion.div>

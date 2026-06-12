@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProducts } from '../context/ProductContext';
 import { CATEGORIES } from '../utils/categories';
+import { useLanguage } from '../context/LanguageContext';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
@@ -11,6 +12,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function Menu() {
   const { products, loading } = useProducts();
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -42,14 +44,15 @@ export default function Menu() {
           className="mb-8 text-center"
         >
           <h1 className="text-3xl md:text-4xl font-display font-bold gold-text mb-2">
-            Bizning Menyu
+            {t('menu_title')}
           </h1>
-          <p className="text-gray-400 text-sm">Kategoriyani tanlang</p>
+          <p className="text-gray-400 text-sm">{t('menu_select_cat')}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {CATEGORIES.map((cat, i) => {
             const bgImage = getCategoryImage(cat.id);
+            const translatedLabel = t('cat_' + cat.id.replace('-', '_'));
             return (
               <motion.button
                 key={cat.id}
@@ -77,7 +80,7 @@ export default function Menu() {
                 )}
                 <span className="relative z-10 text-4xl md:text-5xl">{cat.icon}</span>
                 <span className={`relative z-10 text-lg md:text-xl font-display font-semibold transition-colors ${bgImage ? 'text-white' : 'text-white group-hover:text-gold-500'}`}>
-                  {cat.label}
+                  {translatedLabel}
                 </span>
               </motion.button>
             );
@@ -87,7 +90,7 @@ export default function Menu() {
     );
   }
 
-  const categoryLabel = CATEGORIES.find(c => c.id === selectedCategory)?.label || selectedCategory;
+  const categoryLabel = selectedCategory ? t('cat_' + selectedCategory.replace('-', '_')) : '';
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -101,7 +104,7 @@ export default function Menu() {
           className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
         >
           <ArrowLeft size={20} />
-          <span>Ortga</span>
+          <span>{t('menu_back')}</span>
         </button>
         <h1 className="text-3xl md:text-4xl font-display font-bold gold-text mb-2">
           {categoryLabel}
@@ -109,7 +112,7 @@ export default function Menu() {
       </motion.div>
 
       <div className="mb-6">
-        <SearchBar value={search} onChange={setSearch} />
+        <SearchBar value={search} onChange={setSearch} placeholder={t('menu_search_placeholder')} />
       </div>
 
       {loading ? (
@@ -120,8 +123,8 @@ export default function Menu() {
           animate={{ opacity: 1 }}
           className="text-center py-20"
         >
-          <p className="text-gray-500 text-lg">Hozircha taomlar mavjud emas</p>
-          <p className="text-gray-600 text-sm mt-2">Tez orada yangi taomlar qo'shiladi</p>
+          <p className="text-gray-500 text-lg">{t('menu_no_products')}</p>
+          <p className="text-gray-600 text-sm mt-2">{t('menu_no_products_desc')}</p>
         </motion.div>
       ) : (
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6">
