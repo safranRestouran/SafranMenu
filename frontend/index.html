@@ -9,10 +9,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <title>SAFRAN - Milliy Taomlar Restorani</title>
   </head>
   <body class="bg-white dark:bg-dark-950 text-gray-900 dark:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Telegram WebApp init
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+      }
+    </script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Moon, Sun, Menu, Phone } from 'lucide-react';
+import { ShoppingBag, Moon, Sun, Menu, Phone, Shield } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSettings } from '../context/SettingsContext';
@@ -27,6 +27,13 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-2">
+            <Link
+              to="/admin"
+              className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-gold-500 transition-colors"
+              title="Admin panel"
+            >
+              <Shield size={18} />
+            </Link>
             <a
               href={`tel:${settings.phone}`}
               className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-gold-500 transition-colors"

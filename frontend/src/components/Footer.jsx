@@ -1,4 +1,4 @@
-import { Phone, MapPin, Send, Instagram } from 'lucide-react';
+import { Phone, Send, Instagram } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 
 export default function Footer() {
@@ -20,10 +20,6 @@ export default function Footer() {
                 <Phone size={16} />
                 <span className="text-sm">{settings.phone}</span>
               </a>
-              <div className="flex items-center gap-2 text-gray-400 justify-center md:justify-start">
-                <MapPin size={16} />
-                <span className="text-sm">{settings.address}</span>
-              </div>
             </div>
           </div>
           <div className="text-center md:text-left">
@@ -42,17 +38,6 @@ export default function Footer() {
             </div>
           </div>
         </div>
-
-        {settings.address && (
-          <div className="mb-8 rounded-2xl overflow-hidden border border-gold-500/10 h-48">
-            <iframe
-              title="Manzil"
-              src={`https://maps.google.com/maps?q=${encodeURIComponent(settings.address)}&output=embed`}
-              className="w-full h-full"
-              loading="lazy"
-            />
-          </div>
-        )}
 
         <div className="text-center pt-6 border-t border-white/5">
           <p className="text-xs text-gray-500">

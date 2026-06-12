@@ -1,11 +1,15 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { formatPrice, getImageUrl, truncate } from '../utils/helpers';
 import { CATEGORY_MAP } from '../utils/categories';
-import { ShoppingCart, Eye } from 'lucide-react';
+import { ShoppingCart, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ProductCard({ product, index = 0, onView }) {
   const { addToCart } = useCart();
+  const [imgIndex, setImgIndex] = useState(0);
+  const images = product?.images?.length ? product.images : ['/placeholder.svg'];
+  const hasMultipleImages = images.length > 1;
 
   return (
     <motion.div
@@ -17,19 +21,43 @@ export default function ProductCard({ product, index = 0, onView }) {
       onClick={() => onView?.(product)}
     >
       <div className="relative h-48 md:h-56 overflow-hidden">
-        <motion.img
-          src={getImageUrl(product.images?.[0])}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500"
-          whileHover={{ scale: 1.1 }}
-          loading="lazy"
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={imgIndex}
+            src={getImageUrl(images[imgIndex])}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500"
+            whileHover={{ scale: 1.1 }}
+            loading="lazy"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+        </AnimatePresence>
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+        {hasMultipleImages && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); setImgIndex(i); }}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${
+                  i === imgIndex ? 'bg-gold-500 w-3' : 'bg-white/60'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
         <div className="absolute top-3 right-3">
           <span className="px-3 py-1 text-xs font-medium rounded-full glass text-gold-500 border border-gold-500/30">
             {CATEGORY_MAP[product.category] || product.category}
           </span>
         </div>
+
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -38,6 +66,23 @@ export default function ProductCard({ product, index = 0, onView }) {
         >
           <Eye size={16} />
         </motion.button>
+
+        {hasMultipleImages && (
+          <>
+            <button
+              onClick={(e) => { e.stopPropagation(); setImgIndex(i => (i - 1 + images.length) % images.length); }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/30 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/50"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); setImgIndex(i => (i + 1) % images.length); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/30 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/50"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </>
+        )}
       </div>
       <div className="p-4">
         <h3 className="text-lg font-display font-semibold text-white mb-1">
