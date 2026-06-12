@@ -1,12 +1,13 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Edit2, Trash2, Search, X, Upload, Image as ImageIcon,
 } from 'lucide-react';
 import { useProducts } from '../../context/ProductContext';
 import { useSettings } from '../../context/SettingsContext';
-import { uploadImages } from '../../utils/upload';
+import { uploadImage, uploadImages } from '../../utils/upload';
 import toast from 'react-hot-toast';
+import ImageCropperModal from '../../components/ImageCropperModal';
 
 const EMPTY_FORM = { name: '', description: '', price: '', category: 'mangal', images: [] };
 
@@ -22,7 +23,25 @@ export default function AdminProducts() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Cropper states
+  const [cropQueue, setCropQueue] = useState([]);
+  const [cropImageSrc, setCropImageSrc] = useState('');
+  const [cropperOpen, setCropperOpen] = useState(false);
+
   const fileRef = useRef();
+
+  useEffect(() => {
+    if (cropQueue.length > 0 && !cropperOpen) {
+      const file = cropQueue[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCropImageSrc(reader.result);
+        setCropperOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [cropQueue, cropperOpen]);
 
   const filtered = products.filter(p =>
     !search || p.name.toLowerCase().includes(search.toLowerCase())
@@ -56,19 +75,30 @@ export default function AdminProducts() {
     });
     if (!validFiles.length) return;
 
+    setCropQueue(prev => [...prev, ...validFiles]);
+  };
+
+  const handleCropComplete = async (croppedFile) => {
+    setCropperOpen(false);
     setUploading(true);
-    setUploadProgress(0);
+    setUploadProgress(20);
+
     try {
-      const urls = await uploadImages(validFiles, form.category, setUploadProgress);
-      setForm(f => ({ ...f, images: [...f.images, ...urls] }));
-      toast.success(`${urls.length} ta rasm yuklandi`);
+      const url = await uploadImage(croppedFile, form.category);
+      setForm(f => ({ ...f, images: [...f.images, url] }));
+      toast.success('Rasm qirqildi va yuklandi');
     } catch (err) {
       toast.error(err.message || 'Rasm yuklashda xatolik');
-      toast('Backend server ishlamayotgan bo\'lsa, mahsulotni rasmsiz qo\'shishingiz mumkin', { icon: '💡', duration: 4000 });
     } finally {
       setUploading(false);
       setUploadProgress(0);
+      setCropQueue(prev => prev.slice(1));
     }
+  };
+
+  const handleCropCancel = () => {
+    setCropperOpen(false);
+    setCropQueue(prev => prev.slice(1));
   };
 
   const removeImage = (idx) => {
@@ -344,6 +374,14 @@ export default function AdminProducts() {
           </>
         )}
       </AnimatePresence>
+
+      <ImageCropperModal
+        isOpen={cropperOpen}
+        imageSrc={cropImageSrc}
+        onClose={handleCropCancel}
+        onCrop={handleCropComplete}
+        defaultAspect={1}
+      />
     </div>
   );
 }

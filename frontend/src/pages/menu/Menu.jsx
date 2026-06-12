@@ -76,7 +76,7 @@ export default function Menu() {
                 whileHover={{ y: -6 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleCategoryClick(cat.id)}
-                className={`relative overflow-hidden rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 min-h-[140px] md:min-h-[180px] group ${bgImage ? 'border border-white/10' : 'glass-card'}`}
+                className={`relative overflow-hidden rounded-2xl p-4 flex flex-col items-center justify-center gap-3 aspect-[16/10] w-full group ${bgImage ? 'border border-white/10' : 'glass-card'}`}
               >
                 {bgImage && (
                   <>

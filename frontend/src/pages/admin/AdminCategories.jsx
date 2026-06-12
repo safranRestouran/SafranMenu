@@ -5,6 +5,7 @@ import { useSettings } from '../../context/SettingsContext';
 import { useProducts } from '../../context/ProductContext';
 import { uploadImage, deleteImage } from '../../utils/upload';
 import toast from 'react-hot-toast';
+import ImageCropperModal from '../../components/ImageCropperModal';
 
 export default function AdminCategories() {
   const { settings, updateSettings } = useSettings();
@@ -26,6 +27,11 @@ export default function AdminCategories() {
   const [editForm, setEditForm] = useState({ id: '', label: '', image: '', order: 0 });
   const [editUploading, setEditUploading] = useState(false);
   const [editDragOver, setEditDragOver] = useState(false);
+
+  // Cropper states
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState('');
+  const [cropTarget, setCropTarget] = useState('add');
 
   const fileRef = useRef();
   const editFileRef = useRef();
@@ -138,21 +144,33 @@ export default function AdminCategories() {
       return;
     }
 
-    if (isEdit) setEditUploading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result);
+      setCropTarget(isEdit ? 'edit' : 'add');
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = async (croppedFile) => {
+    setCropperOpen(false);
+    
+    if (cropTarget === 'edit') setEditUploading(true);
     else setUploading(true);
 
     try {
-      const url = await uploadImage(file, 'categories');
-      if (isEdit) {
+      const url = await uploadImage(croppedFile, 'categories');
+      if (cropTarget === 'edit') {
         setEditForm(f => ({ ...f, image: url }));
       } else {
         setNewImage(url);
       }
-      toast.success('Rasm muvaffaqiyatli yuklandi');
+      toast.success('Rasm qirqildi va yuklandi');
     } catch (err) {
       toast.error(err.message || 'Rasm yuklashda xatolik yuz berdi');
     } finally {
-      if (isEdit) setEditUploading(false);
+      if (cropTarget === 'edit') setEditUploading(false);
       else setUploading(false);
     }
   };
@@ -631,6 +649,14 @@ export default function AdminCategories() {
           </>
         )}
       </AnimatePresence>
+
+      <ImageCropperModal
+        isOpen={cropperOpen}
+        imageSrc={cropImageSrc}
+        onClose={() => setCropperOpen(false)}
+        onCrop={handleCropComplete}
+        defaultAspect={1.6}
+      />
     </div>
   );
 }
