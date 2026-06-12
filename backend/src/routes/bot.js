@@ -3,11 +3,9 @@ import { Router } from 'express';
 const router = Router();
 const TELEGRAM_API = 'https://api.telegram.org/bot';
 
-async function sendMessage(chatId, token, appUrl) {
+async function sendMessage(chatId, token, appUrl, firstName) {
   const text = [
-    '✨ <b>SAFRAN</b> — Milliy Taomlar Restorani ✨',
-    '',
-    'Assalomu alaykum! SAFRAN botimizga xush kelibsiz! 🎉',
+    `Assalomu alaykum, ${firstName}! SAFRAN botimizga xush kelibsiz! 🎉`,
     '',
     'Bu yerda siz:',
     '🍖 <b>Mangal</b> — eng mazali kabob va grill taomlar',
@@ -88,7 +86,8 @@ router.post('/', async (req, res) => {
     const msg = update.message;
 
     if (msg?.text?.startsWith('/start')) {
-      await sendMessage(msg.chat.id, token, appUrl);
+      const firstName = msg.from?.first_name || 'mehmon';
+      await sendMessage(msg.chat.id, token, appUrl, firstName);
     }
 
     res.json({ ok: true });
