@@ -11,8 +11,8 @@ export default function Landing() {
   const [showCallModal, setShowCallModal] = useState(false);
 
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`;
-  const botUsername = settings.telegram ? settings.telegram.replace('@', '') : 'safran_restaurant';
-  const telegramBotLink = `https://t.me/${botUsername}_bot`;
+  const botUsername = settings.telegram ? settings.telegram.replace('@', '') : 'safran_menu_bot';
+  const telegramBotLink = botUsername.toLowerCase().endsWith('bot') ? `https://t.me/${botUsername}` : `https://t.me/${botUsername}_bot`;
   const instagramLink = settings.social?.instagram || 'https://instagram.com/safran_restaurant';
   const telegramChannelLink = settings.social?.telegram || `https://t.me/${botUsername}`;
 
