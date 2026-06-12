@@ -12,7 +12,7 @@ export default function ProductModal({ product, onClose }) {
   const { t } = useLanguage();
   const categories = settings.categories || [];
 
-  const cat = categories.find(c => c.id === product.category);
+  const cat = product ? categories.find(c => c.id === product.category) : null;
   const translationKey = cat ? 'cat_' + cat.id.replace('-', '_') : '';
   const isDefaultLabel = cat && {
     mangal: 'Mangal',
@@ -24,7 +24,7 @@ export default function ProductModal({ product, onClose }) {
 
   const categoryLabel = cat 
     ? (isDefaultLabel ? (t(translationKey) === translationKey ? cat.label : t(translationKey)) : cat.label) 
-    : product.category;
+    : (product?.category || '');
   const [imgIndex, setImgIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);
