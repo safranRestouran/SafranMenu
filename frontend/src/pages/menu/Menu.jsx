@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProducts } from '../../context/ProductContext';
-import { CATEGORIES } from '../../utils/categories';
+import { useSettings } from '../../context/SettingsContext';
 import { useLanguage } from '../../context/LanguageContext';
 import SearchBar from './components/SearchBar';
 import ProductCard from './components/ProductCard';
@@ -12,7 +12,9 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function Menu() {
   const { products, loading } = useProducts();
+  const { settings } = useSettings();
   const { t } = useLanguage();
+  const categories = settings.categories || [];
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -50,9 +52,10 @@ export default function Menu() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {CATEGORIES.map((cat, i) => {
+          {categories.map((cat, i) => {
             const bgImage = getCategoryImage(cat.id);
-            const translatedLabel = t('cat_' + cat.id.replace('-', '_'));
+            const translationKey = 'cat_' + cat.id.replace('-', '_');
+            const translatedLabel = t(translationKey) === translationKey ? cat.label : t(translationKey);
             return (
               <motion.button
                 key={cat.id}
@@ -89,7 +92,11 @@ export default function Menu() {
     );
   }
 
-  const categoryLabel = selectedCategory ? t('cat_' + selectedCategory.replace('-', '_')) : '';
+  const activeCategory = categories.find(c => c.id === selectedCategory);
+  const translationKey = selectedCategory ? 'cat_' + selectedCategory.replace('-', '_') : '';
+  const categoryLabel = selectedCategory 
+    ? (t(translationKey) === translationKey ? (activeCategory?.label || selectedCategory) : t(translationKey))
+    : '';
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">

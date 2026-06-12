@@ -2,12 +2,13 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import {
-  LayoutDashboard, Package, Palette, Key, LogOut, ArrowLeft,
+  LayoutDashboard, Package, FolderOpen, Palette, Key, LogOut, ArrowLeft,
 } from 'lucide-react';
 
 const NAV = [
   { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/admin/products', label: 'Mahsulotlar', icon: Package },
+  { path: '/admin/categories', label: 'Kategoriyalar', icon: FolderOpen },
   { path: '/admin/branding', label: 'Branding', icon: Palette },
   { path: '/admin/password', label: 'Parol', icon: Key },
 ];

@@ -15,6 +15,13 @@ const DEFAULT_SETTINGS = {
     instagram: 'https://instagram.com/safran_restaurant',
     telegram: 'https://t.me/safran_menu_bot',
   },
+  categories: [
+    { id: 'mangal', label: 'Mangal' },
+    { id: 'milliy-taomlar', label: 'Milliy Taomlar' },
+    { id: 'ichimliklar', label: 'Ichimliklar' },
+    { id: 'shirinliklar', label: 'Shirinliklar' },
+    { id: 'salatlar', label: 'Salatlar' },
+  ],
 };
 
 const SettingsContext = createContext();
@@ -50,7 +57,8 @@ export function SettingsProvider({ children }) {
     try {
       const { data } = await supabase.from('settings').select('*').single();
       if (data) {
-        const merged = { ...DEFAULT_SETTINGS, ...data };
+        const categories = data.social?.categories || DEFAULT_SETTINGS.categories;
+        const merged = { ...DEFAULT_SETTINGS, ...data, categories };
         setSettings(merged);
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
       }
@@ -61,8 +69,16 @@ export function SettingsProvider({ children }) {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
+
+    const dbData = { ...updated };
+    dbData.social = {
+      ...updated.social,
+      categories: updated.categories
+    };
+    delete dbData.categories;
+
     try {
-      await supabase.from('settings').upsert({ id: 1, ...updated });
+      await supabase.from('settings').upsert({ id: 1, ...dbData });
     } catch { /* offline */ }
   };
 

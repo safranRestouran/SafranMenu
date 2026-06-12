@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import { Package, FolderOpen, Clock, HardDrive } from 'lucide-react';
 import { useProducts } from '../../context/ProductContext';
-import { CATEGORIES } from '../../utils/categories';
+import { useSettings } from '../../context/SettingsContext';
 
 export default function AdminDashboard() {
   const { products, getStats } = useProducts();
+  const { settings } = useSettings();
+  const categories = settings.categories || [];
   const stats = getStats();
 
   const cards = [
@@ -54,14 +56,14 @@ export default function AdminDashboard() {
         >
           <h3 className="text-lg font-display font-semibold text-white mb-4">Kategoriyalar bo'yicha</h3>
           <div className="space-y-3">
-            {CATEGORIES.map(cat => {
+            {categories.map(cat => {
               const count = products.filter(p => p.category === cat.id).length;
-              const max = Math.max(1, ...CATEGORIES.map(c => products.filter(p => p.category === c.id).length));
+              const max = Math.max(1, ...categories.map(c => products.filter(p => p.category === c.id).length));
               const pct = max > 0 ? (count / max) * 100 : 0;
               return (
                 <div key={cat.id}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-300">{cat.icon} {cat.label}</span>
+                    <span className="text-gray-300">{cat.label}</span>
                     <span className="text-white font-medium">{count}</span>
                   </div>
                   <div className="h-2 rounded-full bg-white/5 overflow-hidden">

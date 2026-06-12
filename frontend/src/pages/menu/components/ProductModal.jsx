@@ -2,11 +2,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingCart, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useCart } from '../../../context/CartContext';
+import { useSettings } from '../../../context/SettingsContext';
 import { formatPrice, getImageUrl } from '../../../utils/helpers';
-import { CATEGORY_MAP } from '../../../utils/categories';
 
 export default function ProductModal({ product, onClose }) {
   const { addToCart } = useCart();
+  const { settings } = useSettings();
+  const categories = settings.categories || [];
+  const categoryLabel = categories.find(c => c.id === product.category)?.label || product.category;
   const [imgIndex, setImgIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -114,7 +117,7 @@ export default function ProductModal({ product, onClose }) {
               <div className="absolute inset-0 bg-gradient-to-t from-dark-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 flex items-center gap-2">
                 <span className="px-3 py-1 text-xs font-medium rounded-full glass text-gold-500 border border-gold-500/30">
-                  {CATEGORY_MAP[product.category] || product.category}
+                  {categoryLabel}
                 </span>
                 <button
                   onClick={() => setShowFullscreen(true)}

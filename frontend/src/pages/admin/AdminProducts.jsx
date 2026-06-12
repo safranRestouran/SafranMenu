@@ -4,7 +4,7 @@ import {
   Plus, Edit2, Trash2, Search, X, Upload, Image as ImageIcon,
 } from 'lucide-react';
 import { useProducts } from '../../context/ProductContext';
-import { CATEGORIES } from '../../utils/categories';
+import { useSettings } from '../../context/SettingsContext';
 import { uploadImages } from '../../utils/upload';
 import toast from 'react-hot-toast';
 
@@ -12,6 +12,8 @@ const EMPTY_FORM = { name: '', description: '', price: '', category: 'mangal', i
 
 export default function AdminProducts() {
   const { products, loading, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { settings } = useSettings();
+  const categories = settings.categories || [];
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -163,7 +165,7 @@ export default function AdminProducts() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{p.name}</p>
                   <p className="text-xs text-gray-400">
-                    {CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                    {categories.find(c => c.id === p.category)?.label || p.category}
                   </p>
                 </div>
                 <span className="text-sm gold-text font-semibold">
@@ -232,7 +234,7 @@ export default function AdminProducts() {
                       onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                       className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 focus:outline-none"
                     >
-                      {CATEGORIES.map(c => (
+                      {categories.map(c => (
                         <option key={c.id} value={c.id} className="bg-dark-900">{c.label}</option>
                       ))}
                     </select>

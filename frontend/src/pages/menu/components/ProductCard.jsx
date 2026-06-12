@@ -1,12 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useCart } from '../../../context/CartContext';
+import { useSettings } from '../../../context/SettingsContext';
 import { formatPrice, getImageUrl, truncate } from '../../../utils/helpers';
-import { CATEGORY_MAP } from '../../../utils/categories';
 import { ShoppingCart, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ProductCard({ product, index = 0, onView }) {
   const { addToCart } = useCart();
+  const { settings } = useSettings();
+  const categories = settings.categories || [];
+  const categoryLabel = categories.find(c => c.id === product.category)?.label || product.category;
   const [imgIndex, setImgIndex] = useState(0);
   const images = product?.images?.length ? product.images : ['/placeholder.svg'];
   const hasMultipleImages = images.length > 1;
@@ -53,7 +56,7 @@ export default function ProductCard({ product, index = 0, onView }) {
 
         <div className="absolute top-3 right-3">
           <span className="px-3 py-1 text-xs font-medium rounded-full glass text-gold-500 border border-gold-500/30">
-            {CATEGORY_MAP[product.category] || product.category}
+            {categoryLabel}
           </span>
         </div>
 

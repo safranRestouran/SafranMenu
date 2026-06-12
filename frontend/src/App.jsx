@@ -11,6 +11,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminBranding from './pages/admin/AdminBranding';
+import AdminCategories from './pages/admin/AdminCategories';
 import AdminPassword from './pages/admin/AdminPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useTheme } from './context/ThemeContext';
@@ -46,6 +47,7 @@ export default function App() {
         <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/admin/branding" element={<AdminBranding />} />
           <Route path="/admin/password" element={<AdminPassword />} />
         </Route>
