@@ -157,8 +157,8 @@ export default function Landing() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.4, type: 'spring', stiffness: 100 }}
           >
-            <Link 
-              to="/menu"
+            <a 
+              href="https://safranmenu.netlify.app/landing"
               className={buttonClass(true)}
             >
               <div className="flex items-center gap-4">
@@ -172,7 +172,7 @@ export default function Landing() {
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
                 <ArrowRight size={18} />
               </div>
-            </Link>
+            </a>
           </motion.div>
 
           {/* 2. Phone Button (Opens Call Modal) */}
