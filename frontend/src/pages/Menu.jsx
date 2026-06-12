@@ -6,6 +6,7 @@ import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { getImageUrl } from '../utils/helpers';
 import { ArrowLeft } from 'lucide-react';
 
 export default function Menu() {
@@ -27,6 +28,11 @@ export default function Menu() {
     setSearch('');
   };
 
+  const getCategoryImage = (catId) => {
+    const product = products.find(p => p.category === catId && p.images?.length > 0);
+    return product?.images?.[0];
+  };
+
   if (!selectedCategory) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-6">
@@ -41,24 +47,41 @@ export default function Menu() {
           <p className="text-gray-400 text-sm">Kategoriyani tanlang</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-4 md:gap-6">
-          {CATEGORIES.map((cat, i) => (
-            <motion.button
-              key={cat.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              whileHover={{ y: -6, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleCategoryClick(cat.id)}
-              className="glass-card p-6 md:p-8 flex flex-col items-center justify-center gap-3 min-h-[140px] md:min-h-[180px] group"
-            >
-              <span className="text-4xl md:text-5xl">{cat.icon}</span>
-              <span className="text-lg md:text-xl font-display font-semibold text-white group-hover:text-gold-500 transition-colors">
-                {cat.label}
-              </span>
-            </motion.button>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          {CATEGORIES.map((cat, i) => {
+            const bgImage = getCategoryImage(cat.id);
+            return (
+              <motion.button
+                key={cat.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                whileHover={{ y: -6 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCategoryClick(cat.id)}
+                className={`relative overflow-hidden rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 min-h-[140px] md:min-h-[180px] group ${bgImage ? 'border border-white/10' : 'glass-card'}`}
+              >
+                {bgImage && (
+                  <>
+                    <motion.img
+                      src={getImageUrl(bgImage)}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover"
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.08 }}
+                      transition={{ duration: 0.4 }}
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/85" />
+                  </>
+                )}
+                <span className="relative z-10 text-4xl md:text-5xl">{cat.icon}</span>
+                <span className={`relative z-10 text-lg md:text-xl font-display font-semibold transition-colors ${bgImage ? 'text-white' : 'text-white group-hover:text-gold-500'}`}>
+                  {cat.label}
+                </span>
+              </motion.button>
+            );
+          })}
         </div>
       </div>
     );
