@@ -20,14 +20,13 @@ export default function ProductCard({ product, index = 0, onView }) {
       className="glass-card group cursor-pointer overflow-hidden"
       onClick={() => onView?.(product)}
     >
-      <div className="relative h-48 md:h-56 overflow-hidden">
+      <div className="relative h-36 overflow-hidden bg-dark-950/50">
         <AnimatePresence mode="wait">
           <motion.img
             key={imgIndex}
             src={getImageUrl(images[imgIndex])}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500"
-            whileHover={{ scale: 1.1 }}
+            className="w-full h-full object-contain p-1"
             loading="lazy"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -36,7 +35,7 @@ export default function ProductCard({ product, index = 0, onView }) {
           />
         </AnimatePresence>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
         {hasMultipleImages && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10">

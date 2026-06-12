@@ -1,42 +1,92 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProducts } from '../context/ProductContext';
-import CategoryFilter from '../components/CategoryFilter';
+import { CATEGORIES } from '../utils/categories';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { ArrowLeft } from 'lucide-react';
 
 export default function Menu() {
   const { products, loading } = useProducts();
-  const [category, setCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const filtered = products.filter(p => {
-    const matchCategory = category === 'all' || p.category === category;
-    const matchSearch = !search || 
+    const matchCategory = !selectedCategory || p.category === selectedCategory;
+    const matchSearch = !search ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.description?.toLowerCase().includes(search.toLowerCase());
     return matchCategory && matchSearch;
   });
 
+  const handleCategoryClick = (catId) => {
+    setSelectedCategory(catId);
+    setSearch('');
+  };
+
+  if (!selectedCategory) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 text-center"
+        >
+          <h1 className="text-3xl md:text-4xl font-display font-bold gold-text mb-2">
+            Bizning Menyu
+          </h1>
+          <p className="text-gray-400 text-sm">Kategoriyani tanlang</p>
+        </motion.div>
+
+        <div className="grid grid-cols-2 gap-4 md:gap-6">
+          {CATEGORIES.map((cat, i) => (
+            <motion.button
+              key={cat.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleCategoryClick(cat.id)}
+              className="glass-card p-6 md:p-8 flex flex-col items-center justify-center gap-3 min-h-[140px] md:min-h-[180px] group"
+            >
+              <span className="text-4xl md:text-5xl">{cat.icon}</span>
+              <span className="text-lg md:text-xl font-display font-semibold text-white group-hover:text-gold-500 transition-colors">
+                {cat.label}
+              </span>
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const categoryLabel = CATEGORIES.find(c => c.id === selectedCategory)?.label || selectedCategory;
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 text-center"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="mb-6"
       >
+        <button
+          onClick={() => setSelectedCategory(null)}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
+        >
+          <ArrowLeft size={20} />
+          <span>Ortga</span>
+        </button>
         <h1 className="text-3xl md:text-4xl font-display font-bold gold-text mb-2">
-          Bizning Menyu
+          {categoryLabel}
         </h1>
-        <p className="text-gray-400 text-sm">Eng yaxshi milliy taomlar</p>
       </motion.div>
 
-      <div className="mb-6 space-y-4">
+      <div className="mb-6">
         <SearchBar value={search} onChange={setSearch} />
-        <CategoryFilter selected={category} onChange={setCategory} />
       </div>
 
       {loading ? (
