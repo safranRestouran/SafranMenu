@@ -78,7 +78,6 @@ export default function Menu() {
                     <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/85" />
                   </>
                 )}
-                <span className="relative z-10 text-4xl md:text-5xl">{cat.icon}</span>
                 <span className={`relative z-10 text-lg md:text-xl font-display font-semibold transition-colors ${bgImage ? 'text-white' : 'text-white group-hover:text-gold-500'}`}>
                   {translatedLabel}
                 </span>

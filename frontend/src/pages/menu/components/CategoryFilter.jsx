@@ -28,7 +28,6 @@ export default function CategoryFilter({ selected, onChange }) {
               : 'glass text-gray-300 hover:text-white border border-white/10'
           }`}
         >
-          <span>{cat.icon}</span>
           {cat.label}
         </motion.button>
       ))}
