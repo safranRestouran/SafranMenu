@@ -75,7 +75,7 @@ router.get('/info', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const token = process.env.BOT_TOKEN;
-    const appUrl = process.env.APP_URL || 'https://safranmenuapp.netlify.app';
+    const appUrl = process.env.APP_URL || 'https://safranmenu.netlify.app/landing';
 
     if (!token) {
       console.error('BOT_TOKEN muhit o\'zgaruvchisi topilmadi');
