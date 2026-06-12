@@ -36,13 +36,24 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/debug/env', (req, res) => {
+  res.json({
+    BOT_TOKEN: process.env.BOT_TOKEN ? '✅ mavjud' : '❌ topilmadi',
+    APP_URL: process.env.APP_URL || '❌ topilmadi',
+    VERCEL: process.env.VERCEL || '❌ (local)',
+    NODE_ENV: process.env.NODE_ENV || '❌',
+  });
+});
+
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
   res.status(500).json({ error: 'Ichki server xatosi' });
 });
 
-app.listen(PORT, () => {
-  console.log(`SAFRAN API server running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`SAFRAN API server running on port ${PORT}`);
+  });
+}
 
 export default app;
