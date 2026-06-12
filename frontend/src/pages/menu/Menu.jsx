@@ -32,8 +32,9 @@ export default function Menu() {
     setSearch('');
   };
 
-  const getCategoryImage = (catId) => {
-    const product = products.find(p => p.category === catId && p.images?.length > 0);
+  const getCategoryImage = (cat) => {
+    if (cat.image) return cat.image;
+    const product = products.find(p => p.category === cat.id && p.images?.length > 0);
     return product?.images?.[0];
   };
 
@@ -53,7 +54,7 @@ export default function Menu() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {categories.map((cat, i) => {
-            const bgImage = getCategoryImage(cat.id);
+            const bgImage = getCategoryImage(cat);
             const translationKey = 'cat_' + cat.id.replace('-', '_');
             const translatedLabel = t(translationKey) === translationKey ? cat.label : t(translationKey);
             return (
