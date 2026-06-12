@@ -3,13 +3,28 @@ import { X, ShoppingCart, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'luc
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useCart } from '../../../context/CartContext';
 import { useSettings } from '../../../context/SettingsContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import { formatPrice, getImageUrl } from '../../../utils/helpers';
 
 export default function ProductModal({ product, onClose }) {
   const { addToCart } = useCart();
   const { settings } = useSettings();
+  const { t } = useLanguage();
   const categories = settings.categories || [];
-  const categoryLabel = categories.find(c => c.id === product.category)?.label || product.category;
+
+  const cat = categories.find(c => c.id === product.category);
+  const translationKey = cat ? 'cat_' + cat.id.replace('-', '_') : '';
+  const isDefaultLabel = cat && {
+    mangal: 'Mangal',
+    'milliy-taomlar': 'Milliy Taomlar',
+    ichimliklar: 'Ichimliklar',
+    shirinliklar: 'Shirinliklar',
+    salatlar: 'Salatlar'
+  }[cat.id] === cat.label;
+
+  const categoryLabel = cat 
+    ? (isDefaultLabel ? (t(translationKey) === translationKey ? cat.label : t(translationKey)) : cat.label) 
+    : product.category;
   const [imgIndex, setImgIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);

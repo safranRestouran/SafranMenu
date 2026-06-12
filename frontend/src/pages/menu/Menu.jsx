@@ -56,7 +56,16 @@ export default function Menu() {
           {categories.map((cat, i) => {
             const bgImage = getCategoryImage(cat);
             const translationKey = 'cat_' + cat.id.replace('-', '_');
-            const translatedLabel = t(translationKey) === translationKey ? cat.label : t(translationKey);
+            const isDefaultLabel = {
+              mangal: 'Mangal',
+              'milliy-taomlar': 'Milliy Taomlar',
+              ichimliklar: 'Ichimliklar',
+              shirinliklar: 'Shirinliklar',
+              salatlar: 'Salatlar'
+            }[cat.id] === cat.label;
+            const translatedLabel = isDefaultLabel 
+              ? (t(translationKey) === translationKey ? cat.label : t(translationKey))
+              : cat.label;
             return (
               <motion.button
                 key={cat.id}
@@ -95,8 +104,15 @@ export default function Menu() {
 
   const activeCategory = categories.find(c => c.id === selectedCategory);
   const translationKey = selectedCategory ? 'cat_' + selectedCategory.replace('-', '_') : '';
+  const isDefaultLabel = activeCategory && {
+    mangal: 'Mangal',
+    'milliy-taomlar': 'Milliy Taomlar',
+    ichimliklar: 'Ichimliklar',
+    shirinliklar: 'Shirinliklar',
+    salatlar: 'Salatlar'
+  }[activeCategory.id] === activeCategory.label;
   const categoryLabel = selectedCategory 
-    ? (t(translationKey) === translationKey ? (activeCategory?.label || selectedCategory) : t(translationKey))
+    ? (isDefaultLabel ? (t(translationKey) === translationKey ? (activeCategory?.label || selectedCategory) : t(translationKey)) : (activeCategory?.label || selectedCategory))
     : '';
 
   return (

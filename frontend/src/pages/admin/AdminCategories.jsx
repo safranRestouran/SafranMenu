@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit2, FolderOpen, Image as ImageIcon, Upload, Save, X, AlertTriangle, Layers } from 'lucide-react';
+import { Plus, Trash2, Edit2, FolderOpen, Image as ImageIcon, Upload, Save, X, AlertTriangle, Layers, ChevronUp, ChevronDown } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import { useProducts } from '../../context/ProductContext';
 import { uploadImage, deleteImage } from '../../utils/upload';
@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 export default function AdminCategories() {
   const { settings, updateSettings } = useSettings();
-  const { products } = useProducts();
+  const { products, updateProduct } = useProducts();
   const categories = settings.categories || [];
   
   // States
@@ -87,14 +87,67 @@ export default function AdminCategories() {
   // Save Edit Handler
   const handleSaveEdit = async (e) => {
     e.preventDefault();
-    if (!editForm.label.trim()) {
-      toast.error('Kategoriya nomi bo\'sh bo\'lmasligi kerak');
+    const newIdClean = editForm.id.trim().toLowerCase().replace(/\s+/g, '-');
+    const labelClean = editForm.label.trim();
+
+    if (!newIdClean || !labelClean) {
+      toast.error('Kategoriya kodi va nomi to\'ldirilishi shart');
       return;
     }
 
-    const updated = categories.map(c => c.id === editingCat.id ? { ...c, label: editForm.label.trim(), image: editForm.image } : c);
-    await saveCategories(updated, 'Kategoriya yangilandi');
-    setEditingCat(null);
+    const oldId = editingCat.id;
+    const isIdChanged = newIdClean !== oldId;
+
+    if (isIdChanged) {
+      // Check if new ID already exists in other categories
+      if (categories.some(c => c.id === newIdClean && c.id !== oldId)) {
+        toast.error('Bu kodli kategoriya allaqachon mavjud');
+        return;
+      }
+    }
+
+    setSaving(true);
+    try {
+      // If ID changed, migrate products
+      if (isIdChanged) {
+        const catProducts = products.filter(p => p.category === oldId);
+        if (catProducts.length > 0) {
+          const proceed = window.confirm(
+            `Kategoriya kodi "${oldId}" dan "${newIdClean}" ga o'zgarmoqda.\n` +
+            `Ushbu kategoriyaga tegishli ${catProducts.length} ta mahsulot avtomatik tarzda yangi kodga o'tkaziladi. Davom etamizmi?`
+          );
+          if (!proceed) {
+            setSaving(false);
+            return;
+          }
+
+          toast.loading('Mahsulotlar yangilanmoqda...', { id: 'migration' });
+          for (const p of catProducts) {
+            await updateProduct(p.id, {
+              name: p.name,
+              description: p.description || '',
+              price: p.price.toString(),
+              category: newIdClean,
+              images: p.images || []
+            });
+          }
+          toast.success('Barcha mahsulotlar yangi kategoriyaga o\'tkazildi', { id: 'migration' });
+        }
+      }
+
+      // Now save category updates
+      const updated = categories.map(c => 
+        c.id === oldId 
+          ? { id: newIdClean, label: labelClean, image: editForm.image } 
+          : c
+      );
+      await saveCategories(updated, 'Kategoriya muvaffaqiyatli yangilandi');
+      setEditingCat(null);
+    } catch (err) {
+      toast.error('Tahrirlashda xatolik yuz berdi: ' + err.message, { id: 'migration' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Image upload helpers
@@ -155,6 +208,18 @@ export default function AdminCategories() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const moveCategory = async (index, direction) => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= categories.length) return;
+
+    const updated = [...categories];
+    const temp = updated[index];
+    updated[index] = updated[newIndex];
+    updated[newIndex] = temp;
+
+    await saveCategories(updated, "Kategoriyalar tartibi o'zgartirildi");
   };
 
   // Stats calculation
@@ -342,7 +407,29 @@ export default function AdminCategories() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+                      {/* Move Up/Down Controls */}
+                      <div className="flex flex-col -space-y-0.5">
+                        <button
+                          type="button"
+                          onClick={() => moveCategory(idx, 'up')}
+                          disabled={idx === 0 || saving}
+                          className="p-0.5 rounded hover:bg-white/5 text-gray-500 hover:text-gold-500 disabled:opacity-10 disabled:pointer-events-none transition-colors"
+                          title="Tepaga siljitish"
+                        >
+                          <ChevronUp size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveCategory(idx, 'down')}
+                          disabled={idx === categories.length - 1 || saving}
+                          className="p-0.5 rounded hover:bg-white/5 text-gray-500 hover:text-gold-500 disabled:opacity-10 disabled:pointer-events-none transition-colors"
+                          title="Pastga siljitish"
+                        >
+                          <ChevronDown size={14} />
+                        </button>
+                      </div>
+
                       <span className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-gray-400 border border-white/5">
                         {productCount} ta mahsulot
                       </span>
@@ -371,6 +458,77 @@ export default function AdminCategories() {
           )}
         </motion.div>
       </div>
+
+      {/* Category Analytics Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="glass-card p-6 mt-8"
+      >
+        <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
+          <Layers className="text-gold-500" size={20} />
+          Kategoriyalar Tahlili & Moliyaviy Ko'rsatkichlar
+        </h3>
+        
+        {categories.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-6">Tahlil qilish uchun kategoriyalar mavjud emas</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10 text-xs text-gray-400 uppercase tracking-wider">
+                  <th className="py-3 px-4">Kategoriya</th>
+                  <th className="py-3 px-4 text-center">Taomlar Soni</th>
+                  <th className="py-3 px-4">Menu Ulushi</th>
+                  <th className="py-3 px-4">O'rtacha Narx</th>
+                  <th className="py-3 px-4">Narxlar Oralig'i</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 text-sm text-gray-300">
+                {categories.map(c => {
+                  const catProducts = products.filter(p => p.category === c.id);
+                  const count = catProducts.length;
+                  const percent = products.length > 0 ? Math.round((count / products.length) * 100) : 0;
+                  
+                  const prices = catProducts.map(p => Number(p.price || 0));
+                  const avgPrice = count > 0 
+                    ? Math.round(prices.reduce((sum, pr) => sum + pr, 0) / count)
+                    : 0;
+                  const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+                  const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+
+                  const formatVal = (val) => new Intl.NumberFormat('uz-UZ', { style: 'currency', currency: 'UZS', minimumFractionDigits: 0 }).format(val);
+
+                  return (
+                    <tr key={c.id} className="hover:bg-white/5 transition-colors">
+                      <td className="py-3 px-4 font-medium text-white">
+                        {c.label}
+                        <span className="block text-[10px] text-gray-500 font-mono">ID: {c.id}</span>
+                      </td>
+                      <td className="py-3 px-4 text-center font-mono">{count} ta</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className="w-8 text-xs font-mono">{percent}%</span>
+                          <div className="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                            <div className="h-full gold-gradient rounded-full" style={{ width: `${percent}%` }} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-gold-500 font-semibold font-mono">
+                        {count > 0 ? formatVal(avgPrice) : "—"}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-gray-400 font-mono">
+                        {count > 0 ? `${formatVal(minPrice)} - ${formatVal(maxPrice)}` : "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </motion.div>
 
       {/* Edit Category Modal */}
       <AnimatePresence>
@@ -404,13 +562,17 @@ export default function AdminCategories() {
 
                 <form onSubmit={handleSaveEdit} className="space-y-4">
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">ID (O'zgartirib bo'lmaydi)</label>
+                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Kategoriya Kodi (ID)</label>
                     <input
                       type="text"
                       value={editForm.id}
-                      disabled
-                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-500 text-sm focus:outline-none"
+                      onChange={e => setEditForm(f => ({ ...f, id: e.target.value }))}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none text-sm"
+                      placeholder="kategoriya-kodi"
                     />
+                    <p className="text-[10px] text-amber-500 mt-1">
+                      Kodni o'zgartirsangiz, ushbu kategoriyadagi barcha mahsulotlar ham avtomatik ravishda yangi kodga o'tkaziladi.
+                    </p>
                   </div>
 
                   <div>

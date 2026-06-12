@@ -2,14 +2,29 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useCart } from '../../../context/CartContext';
 import { useSettings } from '../../../context/SettingsContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import { formatPrice, getImageUrl, truncate } from '../../../utils/helpers';
 import { ShoppingCart, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ProductCard({ product, index = 0, onView }) {
   const { addToCart } = useCart();
   const { settings } = useSettings();
+  const { t } = useLanguage();
   const categories = settings.categories || [];
-  const categoryLabel = categories.find(c => c.id === product.category)?.label || product.category;
+
+  const cat = categories.find(c => c.id === product.category);
+  const translationKey = cat ? 'cat_' + cat.id.replace('-', '_') : '';
+  const isDefaultLabel = cat && {
+    mangal: 'Mangal',
+    'milliy-taomlar': 'Milliy Taomlar',
+    ichimliklar: 'Ichimliklar',
+    shirinliklar: 'Shirinliklar',
+    salatlar: 'Salatlar'
+  }[cat.id] === cat.label;
+
+  const categoryLabel = cat 
+    ? (isDefaultLabel ? (t(translationKey) === translationKey ? cat.label : t(translationKey)) : cat.label) 
+    : product.category;
   const [imgIndex, setImgIndex] = useState(0);
   const images = product?.images?.length ? product.images : ['/placeholder.svg'];
   const hasMultipleImages = images.length > 1;
