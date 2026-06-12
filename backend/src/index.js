@@ -3,6 +3,7 @@ import cors from 'cors';
 import 'dotenv/config';
 import uploadRouter from './routes/upload.js';
 import productsRouter from './routes/products.js';
+import botRouter from './routes/bot.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/upload', uploadRouter);
 app.use('/api/products', productsRouter);
+app.use('/api/bot', botRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -42,3 +44,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`SAFRAN API server running on port ${PORT}`);
 });
+
+export default app;
