@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Header from '../components/Header';
-import CartDrawer from '../components/CartDrawer';
+import Header from '../pages/menu/components/Header';
+import CartDrawer from '../pages/menu/components/CartDrawer';
 import { useCart } from '../context/CartContext';
 import { ShoppingBag } from 'lucide-react';
 

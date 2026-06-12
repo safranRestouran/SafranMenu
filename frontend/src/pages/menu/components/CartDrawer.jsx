@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
-import { useCart } from '../context/CartContext';
-import { useLanguage } from '../context/LanguageContext';
-import { formatPrice, getImageUrl } from '../utils/helpers';
+import { useCart } from '../../../context/CartContext';
+import { useLanguage } from '../../../context/LanguageContext';
+import { formatPrice, getImageUrl } from '../../../utils/helpers';
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, clearCart, getCartTotal, getItemCount } = useCart();

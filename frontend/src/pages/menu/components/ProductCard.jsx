@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { useCart } from '../context/CartContext';
-import { formatPrice, getImageUrl, truncate } from '../utils/helpers';
-import { CATEGORY_MAP } from '../utils/categories';
+import { useCart } from '../../../context/CartContext';
+import { formatPrice, getImageUrl, truncate } from '../../../utils/helpers';
+import { CATEGORY_MAP } from '../../../utils/categories';
 import { ShoppingCart, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ProductCard({ product, index = 0, onView }) {

@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Moon, Sun, Phone, Shield } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
-import { useSettings } from '../context/SettingsContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { useSettings } from '../../../context/SettingsContext';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();

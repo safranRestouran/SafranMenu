@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UtensilsCrossed, Phone, MapPin, Send, Instagram, ArrowRight } from 'lucide-react';
-import { useSettings } from '../context/SettingsContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useSettings } from '../../context/SettingsContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function Landing() {
   const { settings } = useSettings();

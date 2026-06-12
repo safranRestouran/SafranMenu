@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CATEGORIES } from '../utils/categories';
+import { CATEGORIES } from '../../../utils/categories';
 
 export default function CategoryFilter({ selected, onChange }) {
   return (

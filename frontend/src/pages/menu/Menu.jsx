@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useProducts } from '../context/ProductContext';
-import { CATEGORIES } from '../utils/categories';
-import { useLanguage } from '../context/LanguageContext';
-import SearchBar from '../components/SearchBar';
-import ProductCard from '../components/ProductCard';
-import ProductModal from '../components/ProductModal';
-import SkeletonLoader from '../components/SkeletonLoader';
-import { getImageUrl } from '../utils/helpers';
+import { useProducts } from '../../context/ProductContext';
+import { CATEGORIES } from '../../utils/categories';
+import { useLanguage } from '../../context/LanguageContext';
+import SearchBar from './components/SearchBar';
+import ProductCard from './components/ProductCard';
+import ProductModal from './components/ProductModal';
+import SkeletonLoader from './components/SkeletonLoader';
+import { getImageUrl } from '../../utils/helpers';
 import { ArrowLeft } from 'lucide-react';
 
 export default function Menu() {

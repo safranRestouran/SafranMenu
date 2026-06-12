@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingCart, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useCart } from '../context/CartContext';
-import { formatPrice, getImageUrl } from '../utils/helpers';
-import { CATEGORY_MAP } from '../utils/categories';
+import { useCart } from '../../../context/CartContext';
+import { formatPrice, getImageUrl } from '../../../utils/helpers';
+import { CATEGORY_MAP } from '../../../utils/categories';
 
 export default function ProductModal({ product, onClose }) {
   const { addToCart } = useCart();
