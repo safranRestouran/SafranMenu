@@ -124,7 +124,7 @@ export default function Menu() {
           <p className="text-gray-600 text-sm mt-2">Tez orada yangi taomlar qo'shiladi</p>
         </motion.div>
       ) : (
-        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AnimatePresence mode="popLayout">
             {filtered.map((product, i) => (
               <ProductCard
