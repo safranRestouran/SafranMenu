@@ -7,13 +7,13 @@ const DEFAULT_SETTINGS = {
   description: 'Milliy Taomlar Restorani',
   phone: '+998973624755',
   phone2: '+998886001700',
-  telegram: 'safran_menu_bot',
+  telegram: 'SafranMenu_bot',
   address: 'Toshkent sh., Amir Temur ko\'chasi, 100',
   logo: '/logo.png',
   favicon: '/favicon.svg',
   social: {
-    instagram: 'https://instagram.com/safran_restaurant',
-    telegram: 'https://t.me/safran_menu_bot',
+    instagram: 'https://instagram.com/safran_kafe_',
+    telegram: 'https://t.me/SafranMenu_bot',
   },
   categories: [
     { id: 'mangal', label: 'Mangal' },

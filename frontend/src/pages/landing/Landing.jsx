@@ -9,11 +9,12 @@ export default function Landing() {
   const { settings } = useSettings();
   const { lang: activeLang, setLang, t } = useLanguage();
   const [showCallModal, setShowCallModal] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`;
-  const botUsername = settings.telegram ? settings.telegram.replace('@', '') : 'safran_menu_bot';
+  const botUsername = settings.telegram ? settings.telegram.replace('@', '') : 'SafranMenu_bot';
   const telegramBotLink = botUsername.toLowerCase().endsWith('bot') ? `https://t.me/${botUsername}` : `https://t.me/${botUsername}_bot`;
-  const instagramLink = settings.social?.instagram || 'https://instagram.com/safran_restaurant';
+  const instagramLink = settings.social?.instagram || 'https://instagram.com/safran_kafe_';
   const telegramChannelLink = settings.social?.telegram || `https://t.me/${botUsername}`;
 
   const languages = ['UZ', 'RU', 'EN'];
@@ -199,16 +200,14 @@ export default function Landing() {
             </button>
           </motion.div>
 
-          {/* 3. Location Link */}
+          {/* 3. Location Button (Opens Location Modal) */}
           <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.6, type: 'spring', stiffness: 100 }}
           >
-            <a 
-              href={mapLink}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button 
+              onClick={() => setShowLocationModal(true)}
               className={buttonClass(false)}
             >
               <div className="flex items-center gap-4">
@@ -222,7 +221,7 @@ export default function Landing() {
               <div className="text-gray-400 group-hover:text-gold-500 group-hover:translate-x-1 transition-all">
                 <ArrowRight size={18} />
               </div>
-            </a>
+            </button>
           </motion.div>
 
           {/* 4. Telegram Bot Link */}
@@ -369,6 +368,77 @@ export default function Landing() {
               {/* Cancel Button */}
               <button
                 onClick={() => setShowCallModal(false)}
+                className="w-full py-3.5 rounded-2xl bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 font-semibold text-sm transition-all"
+              >
+                {t('cancel')}
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Location Modal Sheet */}
+      <AnimatePresence>
+        {showLocationModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLocationModal(false)}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            />
+            {/* Slide up sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto bg-dark-950/95 backdrop-blur-xl border-t border-gold-500/25 rounded-t-[2.5rem] p-6 shadow-2xl text-white"
+            >
+              {/* Handle bar for premium native feel */}
+              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+
+              <h3 className="text-center font-display font-semibold text-lg text-gray-200 mb-6">
+                {t('location_modal_title')}
+              </h3>
+
+              {/* Address display */}
+              <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 mb-4">
+                <div className="w-10 h-10 rounded-full bg-gold-500/10 border border-gold-500/20 flex items-center justify-center text-gold-500 shrink-0">
+                  <MapPin size={18} />
+                </div>
+                <span className="text-sm text-gray-200 font-medium leading-relaxed">
+                  {settings.address}
+                </span>
+              </div>
+
+              {/* Embedded Map */}
+              <div className="w-full h-48 rounded-2xl overflow-hidden border border-white/10 mb-6 bg-white/5">
+                <iframe
+                  title="Restaurant Location"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(settings.address)}&z=15&output=embed`}
+                  className="w-full h-full"
+                  loading="lazy"
+                  allowFullScreen
+                />
+              </div>
+
+              {/* Open in Google Maps button */}
+              <a
+                href={mapLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-gold-500/10 border border-gold-500/30 text-gold-500 hover:bg-gold-500/20 font-semibold text-sm transition-all mb-3"
+              >
+                <MapPin size={16} />
+                {t('location_open_maps')}
+              </a>
+
+              {/* Cancel Button */}
+              <button
+                onClick={() => setShowLocationModal(false)}
                 className="w-full py-3.5 rounded-2xl bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 font-semibold text-sm transition-all"
               >
                 {t('cancel')}

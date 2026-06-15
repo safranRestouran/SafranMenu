@@ -13,6 +13,8 @@ const translations = {
     landing_daily: "Har kuni",
     landing_description: "Milliy Taomlar Restorani",
     call_modal_title: "Telefon qilish uchun raqamni tanlang",
+    location_modal_title: "Bizning Manzil",
+    location_open_maps: "Google Maps da ochish",
     cancel: "Bekor qilish",
 
     // Menu Page
@@ -48,6 +50,8 @@ const translations = {
     landing_daily: "Ежедневно",
     landing_description: "Ресторан национальной кухни",
     call_modal_title: "Выберите номер для звонка",
+    location_modal_title: "Наш Адрес",
+    location_open_maps: "Открыть в Google Maps",
     cancel: "Отмена",
 
     // Menu Page
@@ -83,6 +87,8 @@ const translations = {
     landing_daily: "Daily",
     landing_description: "National Cuisine Restaurant",
     call_modal_title: "Choose a number to call",
+    location_modal_title: "Our Address",
+    location_open_maps: "Open in Google Maps",
     cancel: "Cancel",
 
     // Menu Page

@@ -5,3 +5,6 @@ dist/
 .DS_Store
 
 .vercel
+
+# Supabase admin (service role key — never commit)
+frontend/src/utils/supabase-admin.js
