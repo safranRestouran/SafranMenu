@@ -2,18 +2,18 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Edit2, Trash2, Search, X, Upload, Image as ImageIcon,
-  ChevronUp, ChevronDown,
 } from 'lucide-react';
 import { useProducts } from '../../context/ProductContext';
 import { useSettings } from '../../context/SettingsContext';
+import { formatPrice } from '../../utils/helpers';
 import { uploadImage, uploadImages } from '../../utils/upload';
 import toast from 'react-hot-toast';
 import ImageCropperModal from '../../components/ImageCropperModal';
 
-const EMPTY_FORM = { name: '', description: '', price: '', category: 'mangal', images: [] };
+const EMPTY_FORM = { name: '', description: '', price: '', category: 'mangal', images: [], sort_order: '' };
 
 export default function AdminProducts() {
-  const { products, loading, addProduct, updateProduct, deleteProduct, reorderProduct } = useProducts();
+  const { products, loading, addProduct, updateProduct, deleteProduct } = useProducts();
   const { settings } = useSettings();
   const categories = settings.categories || [];
   const [search, setSearch] = useState('');
@@ -72,6 +72,7 @@ export default function AdminProducts() {
       price: product.price.toString(),
       category: product.category,
       images: product.images || [],
+      sort_order: product.sort_order?.toString() || '',
     });
     setShowForm(true);
   };
@@ -128,11 +129,15 @@ export default function AdminProducts() {
       return;
     }
     setSubmitting(true);
+    const payload = {
+      ...form,
+      sort_order: form.sort_order === '' || form.sort_order === undefined ? undefined : Number(form.sort_order),
+    };
     try {
       if (editing) {
-        await updateProduct(editing.id, form);
+        await updateProduct(editing.id, payload);
       } else {
-        await addProduct(form);
+        await addProduct(payload);
       }
       setShowForm(false);
       setForm(EMPTY_FORM);
@@ -145,15 +150,6 @@ export default function AdminProducts() {
     if (window.confirm(`"${product.name}" ni o'chirishni tasdiqlaysizmi?`)) {
       await deleteProduct(product.id);
     }
-  };
-
-  const handleReorder = (p, direction) => {
-    const group = grouped.find(g => g.products.some(x => x.id === p.id));
-    if (!group) return;
-    const idx = group.products.findIndex(x => x.id === p.id);
-    const neighbor = direction === 'up' ? group.products[idx - 1] : group.products[idx + 1];
-    if (!neighbor) return;
-    reorderProduct(p.id, neighbor.id);
   };
 
   return (
@@ -220,51 +216,33 @@ export default function AdminProducts() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                    className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
                   >
-                    {/* Sequence number + reorder buttons */}
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      <span className="w-7 h-7 flex items-center justify-center text-xs font-bold rounded-full bg-gold-500/15 text-gold-500 border border-gold-500/30">
-                        {pi + 1}
-                      </span>
-                      <div className="flex flex-col gap-0.5 ml-1">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleReorder(p, 'up'); }}
-                          disabled={pi === 0}
-                          className="p-0.5 rounded-sm text-gray-500 hover:text-gold-500 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <ChevronUp size={12} />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleReorder(p, 'down'); }}
-                          disabled={pi === group.products.length - 1}
-                          className="p-0.5 rounded-sm text-gray-500 hover:text-gold-500 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <ChevronDown size={12} />
-                        </button>
-                      </div>
-                    </div>
+                    {/* Sequence number */}
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-[10px] sm:text-xs font-bold rounded-full bg-gold-500/15 text-gold-500 border border-gold-500/30 shrink-0">
+                      {pi + 1}
+                    </span>
 
                     <img
                       src={p.images?.[0] || '/placeholder.svg'}
                       alt={p.name}
-                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{p.name}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs sm:text-sm font-medium text-white truncate">{p.name}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-400 truncate">
                         {group.category.label}
                       </p>
                     </div>
-                    <span className="text-sm gold-text font-semibold">
-                      {new Intl.NumberFormat('uz-UZ', { style: 'currency', currency: 'UZS', minimumFractionDigits: 0 }).format(p.price)}
+                    <span className="text-[10px] sm:text-sm gold-text font-semibold whitespace-nowrap">
+                      {formatPrice(p.price)}
                     </span>
-                    <div className="flex gap-1">
-                      <button onClick={() => openEdit(p)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gold-500 transition-colors">
-                        <Edit2 size={16} />
+                    <div className="flex gap-0.5 sm:gap-1 shrink-0">
+                      <button onClick={() => openEdit(p)} className="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gold-500 transition-colors">
+                        <Edit2 size={14} className="sm:size-[16]" />
                       </button>
-                      <button onClick={() => handleDelete(p)} className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
-                        <Trash2 size={16} />
+                      <button onClick={() => handleDelete(p)} className="p-1.5 sm:p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
+                        <Trash2 size={14} className="sm:size-[16]" />
                       </button>
                     </div>
                   </motion.div>
@@ -349,6 +327,18 @@ export default function AdminProducts() {
                       rows={3}
                       className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none resize-none"
                       placeholder="Mahsulot haqida..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Tartib raqami</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.sort_order}
+                      onChange={e => setForm(f => ({ ...f, sort_order: e.target.value }))}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-gold-500/50 focus:outline-none"
+                      placeholder="0"
                     />
                   </div>
 

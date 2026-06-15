@@ -18,19 +18,21 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { name, description, price, category, images } = req.body;
+    const { name, description, price, category, images, sort_order } = req.body;
     if (!name || price === undefined) {
       return res.status(400).json({ error: 'Nomi va narxi majburiy' });
     }
 
-    const { data: maxData } = await supabase
-      .from('products')
-      .select('sort_order')
-      .eq('category', category)
-      .order('sort_order', { ascending: false })
-      .limit(1);
-
-    const nextOrder = (maxData?.[0]?.sort_order ?? 0) + 1;
+    let nextOrder = sort_order;
+    if (nextOrder === undefined || nextOrder === null) {
+      const { data: maxData } = await supabase
+        .from('products')
+        .select('sort_order')
+        .eq('category', category)
+        .order('sort_order', { ascending: false })
+        .limit(1);
+      nextOrder = (maxData?.[0]?.sort_order ?? 0) + 1;
+    }
 
     const { data, error } = await supabase
       .from('products')
@@ -47,13 +49,17 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, category, images } = req.body;
+    const { name, description, price, category, images, sort_order } = req.body;
+    const updates = {
+      name, description, price: Number(price), category, images,
+      updated_at: new Date().toISOString(),
+    };
+    if (sort_order !== undefined && sort_order !== null) {
+      updates.sort_order = Number(sort_order);
+    }
     const { data, error } = await supabase
       .from('products')
-      .update({
-        name, description, price: Number(price), category, images,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updates)
       .eq('id', id)
       .select()
       .single();
