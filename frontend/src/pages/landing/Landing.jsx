@@ -11,7 +11,7 @@ export default function Landing() {
   const [showCallModal, setShowCallModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
 
-  const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`;
+  const mapLink = 'https://maps.app.goo.gl/by2hFQuF4uAk5zL2A?g_st=ic';
   const botUsername = settings.telegram ? settings.telegram.replace('@', '') : 'SafranMenu_bot';
   const telegramBotLink = botUsername.toLowerCase().endsWith('bot') ? `https://t.me/${botUsername}` : `https://t.me/${botUsername}_bot`;
   const instagramLink = settings.social?.instagram || 'https://instagram.com/safran_kafe_';
@@ -410,7 +410,7 @@ export default function Landing() {
                   <MapPin size={18} />
                 </div>
                 <span className="text-sm text-gray-200 font-medium leading-relaxed">
-                  {settings.address}
+                  Xorazm Xazorasp
                 </span>
               </div>
 
@@ -418,7 +418,7 @@ export default function Landing() {
               <div className="w-full h-48 rounded-2xl overflow-hidden border border-white/10 mb-6 bg-white/5">
                 <iframe
                   title="Restaurant Location"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(settings.address)}&z=15&output=embed`}
+                  src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2999.917085963585!2d61.24950077605241!3d41.24536397131831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDHCsDE0JzQzLjMiTiA2McKwMTUnMDcuNSJF!5e0!3m2!1sru!2s!4v1781545027139!5m2!1sru!2s"
                   className="w-full h-full"
                   loading="lazy"
                   allowFullScreen

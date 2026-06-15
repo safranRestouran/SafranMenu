@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS = {
   phone: '+998973624755',
   phone2: '+998886001700',
   telegram: 'SafranMenu_bot',
-  address: 'Toshkent sh., Amir Temur ko\'chasi, 100',
+  address: 'Xorazm Xazorasp',
   logo: '/logo.png',
   favicon: '/favicon.svg',
   social: {
