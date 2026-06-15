@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS products (
   price NUMERIC NOT NULL DEFAULT 0,
   category TEXT NOT NULL DEFAULT 'mangal',
   images TEXT[] DEFAULT '{}',
+  sort_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -58,3 +59,4 @@ CREATE POLICY "Service role can manage settings"
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_products_created_at ON products(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_products_sort_order ON products(category, sort_order);

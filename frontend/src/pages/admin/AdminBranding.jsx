@@ -10,23 +10,12 @@ export default function AdminBranding() {
   const [form, setForm] = useState({ ...settings });
   const [saving, setSaving] = useState(false);
   const logoRef = useRef();
-  const iconRef = useRef();
 
   const handleLogoUpload = async (file) => {
     try {
       const url = await uploadImage(file, 'branding');
       setForm(f => ({ ...f, logo: url }));
       toast.success('Logotip yangilandi');
-    } catch (err) {
-      toast.error(err.message);
-    }
-  };
-
-  const handleIconUpload = async (file) => {
-    try {
-      const url = await uploadImage(file, 'branding');
-      setForm(f => ({ ...f, favicon: url }));
-      toast.success('Favicon yangilandi');
     } catch (err) {
       toast.error(err.message);
     }
@@ -56,30 +45,16 @@ export default function AdminBranding() {
 
       <div className="max-w-2xl space-y-6">
         <div className="glass-card p-6 space-y-4">
-          <h3 className="text-lg font-display font-semibold text-white">Logotip va Favicon</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Logotip</p>
-              <img src={form.logo} alt="Logo" className="w-20 h-20 mx-auto rounded-xl object-cover mb-2 bg-white/5" />
-              <button
-                onClick={() => logoRef.current?.click()}
-                className="text-xs text-gold-500 hover:text-gold-400 transition-colors"
-              >
-                <Upload size={14} className="inline mr-1" />Almashtirish
-              </button>
-              <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handleLogoUpload(e.target.files[0])} />
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Favicon</p>
-              <img src={form.favicon} alt="Favicon" className="w-16 h-16 mx-auto rounded-xl object-cover mb-2 bg-white/5" />
-              <button
-                onClick={() => iconRef.current?.click()}
-                className="text-xs text-gold-500 hover:text-gold-400 transition-colors"
-              >
-                <Upload size={14} className="inline mr-1" />Almashtirish
-              </button>
-              <input ref={iconRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handleIconUpload(e.target.files[0])} />
-            </div>
+          <h3 className="text-lg font-display font-semibold text-white">Logotip</h3>
+          <div className="text-center">
+            <img src={form.logo} alt="Logo" className="w-24 h-24 mx-auto rounded-xl object-cover mb-2 bg-white/5" />
+            <button
+              onClick={() => logoRef.current?.click()}
+              className="text-xs text-gold-500 hover:text-gold-400 transition-colors"
+            >
+              <Upload size={14} className="inline mr-1" />Almashtirish
+            </button>
+            <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handleLogoUpload(e.target.files[0])} />
           </div>
         </div>
 

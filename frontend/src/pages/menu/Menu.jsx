@@ -20,13 +20,15 @@ export default function Menu() {
   const [search, setSearch] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const filtered = products.filter(p => {
-    const matchCategory = !selectedCategory || p.category === selectedCategory;
-    const matchSearch = !search ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.description?.toLowerCase().includes(search.toLowerCase());
-    return matchCategory && matchSearch;
-  });
+  const filtered = products
+    .filter(p => {
+      const matchCategory = !selectedCategory || p.category === selectedCategory;
+      const matchSearch = !search ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.description?.toLowerCase().includes(search.toLowerCase());
+      return matchCategory && matchSearch;
+    })
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
   const handleCategoryClick = (catId) => {
     setSelectedCategory(catId);

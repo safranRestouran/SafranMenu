@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true });
     if (error) throw error;
     res.json(data || []);
   } catch (err) {
@@ -22,9 +22,19 @@ router.post('/', async (req, res) => {
     if (!name || price === undefined) {
       return res.status(400).json({ error: 'Nomi va narxi majburiy' });
     }
+
+    const { data: maxData } = await supabase
+      .from('products')
+      .select('sort_order')
+      .eq('category', category)
+      .order('sort_order', { ascending: false })
+      .limit(1);
+
+    const nextOrder = (maxData?.[0]?.sort_order ?? 0) + 1;
+
     const { data, error } = await supabase
       .from('products')
-      .insert([{ name, description, price: Number(price), category, images: images || [] }])
+      .insert([{ name, description, price: Number(price), category, images: images || [], sort_order: nextOrder }])
       .select()
       .single();
     if (error) throw error;

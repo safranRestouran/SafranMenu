@@ -69,6 +69,13 @@ export default function ProductCard({ product, index = 0, onView }) {
           </div>
         )}
 
+        {/* Sequence number */}
+        <div className="absolute bottom-3 left-3 z-10">
+          <span className="w-7 h-7 flex items-center justify-center text-xs font-bold rounded-full bg-gold-500 text-dark-950 shadow shadow-gold-500/30">
+            {index + 1}
+          </span>
+        </div>
+
         <div className="absolute top-3 right-3">
           <span className="px-3 py-1 text-xs font-medium rounded-full glass text-gold-500 border border-gold-500/30">
             {categoryLabel}
