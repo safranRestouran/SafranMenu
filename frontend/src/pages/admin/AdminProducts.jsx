@@ -47,6 +47,16 @@ export default function AdminProducts() {
     !search || p.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const categoryOrder = [...categories].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+  const grouped = categoryOrder
+    .filter(cat => filtered.some(p => p.category === cat.id))
+    .map(cat => ({
+      category: cat,
+      products: filtered
+        .filter(p => p.category === cat.id)
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)),
+    }));
+
   const openAdd = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
@@ -178,38 +188,56 @@ export default function AdminProducts() {
       ) : (
         <div className="space-y-2">
           <AnimatePresence>
-            {filtered.map(p => (
-              <motion.div
-                key={p.id}
-                layout
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-              >
-                <img
-                  src={p.images?.[0] || '/placeholder.svg'}
-                  alt={p.name}
-                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{p.name}</p>
-                  <p className="text-xs text-gray-400">
-                    {categories.find(c => c.id === p.category)?.label || p.category}
-                  </p>
+            {grouped.map((group, gi) => (
+              <div key={group.category.id}>
+                {/* Category header with separator */}
+                <div className="flex items-center gap-3 my-4 first:mt-0">
+                  <div className="flex-1 h-px bg-gradient-to-r from-gold-500/40 via-gold-500/20 to-transparent" />
+                  <span className="text-xs font-bold text-gold-500 uppercase tracking-widest">
+                    {group.category.label}
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-l from-gold-500/40 via-gold-500/20 to-transparent" />
                 </div>
-                <span className="text-sm gold-text font-semibold">
-                  {new Intl.NumberFormat('uz-UZ', { style: 'currency', currency: 'UZS', minimumFractionDigits: 0 }).format(p.price)}
-                </span>
-                <div className="flex gap-1">
-                  <button onClick={() => openEdit(p)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gold-500 transition-colors">
-                    <Edit2 size={16} />
-                  </button>
-                  <button onClick={() => handleDelete(p)} className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </motion.div>
+
+                {group.products.map((p, pi) => (
+                  <motion.div
+                    key={p.id}
+                    layout
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    {/* Sequence number */}
+                    <span className="w-7 h-7 flex items-center justify-center text-xs font-bold rounded-full bg-gold-500/15 text-gold-500 border border-gold-500/30 shrink-0">
+                      {pi + 1}
+                    </span>
+
+                    <img
+                      src={p.images?.[0] || '/placeholder.svg'}
+                      alt={p.name}
+                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{p.name}</p>
+                      <p className="text-xs text-gray-400">
+                        {group.category.label}
+                      </p>
+                    </div>
+                    <span className="text-sm gold-text font-semibold">
+                      {new Intl.NumberFormat('uz-UZ', { style: 'currency', currency: 'UZS', minimumFractionDigits: 0 }).format(p.price)}
+                    </span>
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(p)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gold-500 transition-colors">
+                        <Edit2 size={16} />
+                      </button>
+                      <button onClick={() => handleDelete(p)} className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             ))}
           </AnimatePresence>
         </div>
