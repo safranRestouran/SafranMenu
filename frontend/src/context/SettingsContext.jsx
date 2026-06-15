@@ -36,7 +36,13 @@ export function SettingsProvider({ children }) {
           localStorage.setItem(SETTINGS_KEY, JSON.stringify(DEFAULT_SETTINGS));
           return DEFAULT_SETTINGS;
         }
-        return { ...DEFAULT_SETTINGS, ...parsed };
+        const merged = { ...DEFAULT_SETTINGS, ...parsed };
+        if (merged.telegram === 'safran_menu_bot') merged.telegram = 'SafranMenu_bot';
+        if (merged.social?.instagram === 'https://instagram.com/safran_restaurant')
+          merged.social.instagram = 'https://instagram.com/safran_kafe_';
+        if (merged.social?.telegram === 'https://t.me/safran_menu_bot')
+          merged.social.telegram = 'https://t.me/SafranMenu_bot';
+        return merged;
       } catch {
         return DEFAULT_SETTINGS;
       }
@@ -59,6 +65,11 @@ export function SettingsProvider({ children }) {
       if (data) {
         const categories = data.social?.categories || DEFAULT_SETTINGS.categories;
         const merged = { ...DEFAULT_SETTINGS, ...data, categories };
+        if (merged.telegram === 'safran_menu_bot') merged.telegram = 'SafranMenu_bot';
+        if (merged.social?.instagram === 'https://instagram.com/safran_restaurant')
+          merged.social.instagram = 'https://instagram.com/safran_kafe_';
+        if (merged.social?.telegram === 'https://t.me/safran_menu_bot')
+          merged.social.telegram = 'https://t.me/SafranMenu_bot';
         setSettings(merged);
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
       }

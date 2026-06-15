@@ -133,11 +133,29 @@ export function ProductProvider({ children }) {
     };
   };
 
+  const reorderProduct = async (id1, id2) => {
+    try {
+      await api('/products/reorder', {
+        method: 'PATCH',
+        body: JSON.stringify({ id1, id2 }),
+      });
+      const updated = products.map(p => {
+        if (p.id === id1) return { ...p, sort_order: products.find(x => x.id === id2)?.sort_order ?? p.sort_order };
+        if (p.id === id2) return { ...p, sort_order: products.find(x => x.id === id1)?.sort_order ?? p.sort_order };
+        return p;
+      });
+      setProducts(updated);
+      saveLocal(updated);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
   return (
     <ProductContext.Provider value={{
       products, loading, fetchProducts,
       addProduct, updateProduct, deleteProduct,
-      getProductsByCategory, getStats,
+      reorderProduct, getProductsByCategory, getStats,
     }}>
       {children}
     </ProductContext.Provider>

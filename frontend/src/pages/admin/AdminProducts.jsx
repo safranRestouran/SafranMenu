@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Edit2, Trash2, Search, X, Upload, Image as ImageIcon,
+  ChevronUp, ChevronDown,
 } from 'lucide-react';
 import { useProducts } from '../../context/ProductContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -12,7 +13,7 @@ import ImageCropperModal from '../../components/ImageCropperModal';
 const EMPTY_FORM = { name: '', description: '', price: '', category: 'mangal', images: [] };
 
 export default function AdminProducts() {
-  const { products, loading, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { products, loading, addProduct, updateProduct, deleteProduct, reorderProduct } = useProducts();
   const { settings } = useSettings();
   const categories = settings.categories || [];
   const [search, setSearch] = useState('');
@@ -76,6 +77,10 @@ export default function AdminProducts() {
   };
 
   const handleFiles = async (files) => {
+    if (form.images.length >= 1) {
+      toast.error('Avval mavjud rasmni o\'chiring');
+      return;
+    }
     const validFiles = Array.from(files).filter(f => {
       const typeOk = ['image/jpeg', 'image/png', 'image/webp'].includes(f.type);
       const sizeOk = f.size <= 5 * 1024 * 1024;
@@ -85,7 +90,7 @@ export default function AdminProducts() {
     });
     if (!validFiles.length) return;
 
-    setCropQueue(prev => [...prev, ...validFiles]);
+    setCropQueue(prev => [...prev, ...validFiles.slice(0, 1)]);
   };
 
   const handleCropComplete = async (croppedFile) => {
@@ -95,14 +100,14 @@ export default function AdminProducts() {
 
     try {
       const url = await uploadImage(croppedFile, form.category);
-      setForm(f => ({ ...f, images: [...f.images, url] }));
+      setForm(f => ({ ...f, images: [url] }));
       toast.success('Rasm qirqildi va yuklandi');
     } catch (err) {
       toast.error(err.message || 'Rasm yuklashda xatolik');
     } finally {
       setUploading(false);
       setUploadProgress(0);
-      setCropQueue(prev => prev.slice(1));
+      setCropQueue([]);
     }
   };
 
@@ -140,6 +145,15 @@ export default function AdminProducts() {
     if (window.confirm(`"${product.name}" ni o'chirishni tasdiqlaysizmi?`)) {
       await deleteProduct(product.id);
     }
+  };
+
+  const handleReorder = (p, direction) => {
+    const group = grouped.find(g => g.products.some(x => x.id === p.id));
+    if (!group) return;
+    const idx = group.products.findIndex(x => x.id === p.id);
+    const neighbor = direction === 'up' ? group.products[idx - 1] : group.products[idx + 1];
+    if (!neighbor) return;
+    reorderProduct(p.id, neighbor.id);
   };
 
   return (
@@ -208,10 +222,28 @@ export default function AdminProducts() {
                     exit={{ opacity: 0, x: -20 }}
                     className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
                   >
-                    {/* Sequence number */}
-                    <span className="w-7 h-7 flex items-center justify-center text-xs font-bold rounded-full bg-gold-500/15 text-gold-500 border border-gold-500/30 shrink-0">
-                      {pi + 1}
-                    </span>
+                    {/* Sequence number + reorder buttons */}
+                    <div className="flex items-center gap-0.5 shrink-0">
+                      <span className="w-7 h-7 flex items-center justify-center text-xs font-bold rounded-full bg-gold-500/15 text-gold-500 border border-gold-500/30">
+                        {pi + 1}
+                      </span>
+                      <div className="flex flex-col gap-0.5 ml-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleReorder(p, 'up'); }}
+                          disabled={pi === 0}
+                          className="p-0.5 rounded-sm text-gray-500 hover:text-gold-500 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronUp size={12} />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleReorder(p, 'down'); }}
+                          disabled={pi === group.products.length - 1}
+                          className="p-0.5 rounded-sm text-gray-500 hover:text-gold-500 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronDown size={12} />
+                        </button>
+                      </div>
+                    </div>
 
                     <img
                       src={p.images?.[0] || '/placeholder.svg'}
@@ -334,14 +366,15 @@ export default function AdminProducts() {
                       <input
                         ref={fileRef}
                         type="file"
-                        multiple
                         accept="image/jpeg,image/png,image/webp"
                         className="hidden"
                         onChange={e => handleFiles(e.target.files)}
                       />
                       <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-400">Rasmlarni tashlang yoki tanlang</p>
-                      <p className="text-xs text-gray-500 mt-1">JPG, PNG, WEBP | 5MB gacha</p>
+                      <p className="text-sm text-gray-400">
+                        {form.images.length >= 1 ? 'Rasm mavjud' : 'Rasm tashlang yoki tanlang'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">JPG, PNG, WEBP | 5MB gacha | 1 ta rasm</p>
                     </div>
 
                     {uploading && (
