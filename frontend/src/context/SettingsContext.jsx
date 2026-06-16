@@ -12,7 +12,7 @@ const DEFAULT_SETTINGS = {
   logo: '/logo.png',
   favicon: '/favicon.svg',
   social: {
-    instagram: 'https://instagram.com/safran_kafe_',
+    instagram: 'https://www.instagram.com/safran_restorann?igsh=b2czOHE4OGU4ZDJq',
     telegram: 'https://t.me/SafranMenu_bot',
   },
   categories: [
@@ -38,8 +38,8 @@ export function SettingsProvider({ children }) {
         }
         const merged = { ...DEFAULT_SETTINGS, ...parsed };
         if (merged.telegram === 'safran_menu_bot') merged.telegram = 'SafranMenu_bot';
-        if (merged.social?.instagram === 'https://instagram.com/safran_restaurant')
-          merged.social.instagram = 'https://instagram.com/safran_kafe_';
+        if (merged.social?.instagram === 'https://instagram.com/safran_restaurant' || merged.social?.instagram === 'https://instagram.com/safran_kafe_')
+          merged.social.instagram = 'https://www.instagram.com/safran_restorann?igsh=b2czOHE4OGU4ZDJq';
         if (merged.social?.telegram === 'https://t.me/safran_menu_bot')
           merged.social.telegram = 'https://t.me/SafranMenu_bot';
         return merged;
@@ -66,8 +66,8 @@ export function SettingsProvider({ children }) {
         const categories = data.social?.categories || DEFAULT_SETTINGS.categories;
         const merged = { ...DEFAULT_SETTINGS, ...data, categories };
         if (merged.telegram === 'safran_menu_bot') merged.telegram = 'SafranMenu_bot';
-        if (merged.social?.instagram === 'https://instagram.com/safran_restaurant')
-          merged.social.instagram = 'https://instagram.com/safran_kafe_';
+        if (merged.social?.instagram === 'https://instagram.com/safran_restaurant' || merged.social?.instagram === 'https://instagram.com/safran_kafe_')
+          merged.social.instagram = 'https://www.instagram.com/safran_restorann?igsh=b2czOHE4OGU4ZDJq';
         if (merged.social?.telegram === 'https://t.me/safran_menu_bot')
           merged.social.telegram = 'https://t.me/SafranMenu_bot';
         setSettings(merged);

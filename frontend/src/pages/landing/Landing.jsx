@@ -14,7 +14,7 @@ export default function Landing() {
   const mapLink = 'https://maps.app.goo.gl/by2hFQuF4uAk5zL2A?g_st=ic';
   const botUsername = settings.telegram ? settings.telegram.replace('@', '') : 'SafranMenu_bot';
   const telegramBotLink = botUsername.toLowerCase().endsWith('bot') ? `https://t.me/${botUsername}` : `https://t.me/${botUsername}_bot`;
-  const instagramLink = settings.social?.instagram || 'https://instagram.com/safran_kafe_';
+  const instagramLink = settings.social?.instagram || 'https://www.instagram.com/safran_restorann?igsh=b2czOHE4OGU4ZDJq';
   const telegramChannelLink = settings.social?.telegram || `https://t.me/${botUsername}`;
 
   const languages = ['UZ', 'RU', 'EN'];
